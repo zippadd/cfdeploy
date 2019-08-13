@@ -1,0 +1,35 @@
+{
+  "name": "cloudformation-deploy",
+  "version": "1.0.0",
+  "description": "Node.js module for deploying Cloudformation templates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zippadd/cloudformation-deploy.git"
+  },
+  "keywords": [
+    "cloudformation",
+    "aws",
+    "deploy",
+    "stack",
+    "set",
+    "stackset"
+  ],
+  "author": "John Griepentrog",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zippadd/cloudformation-deploy/issues"
+  },
+  "homepage": "https://github.com/zippadd/cloudformation-deploy#readme",
+  "devDependencies": {
+    "aws-sdk-mock": "^4.5.0",
+    "jest": "^24.8.0",
+    "standard": "^13.1.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.507.0"
+  }
+}
