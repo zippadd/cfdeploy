@@ -22,12 +22,12 @@ Resources:
   TransactionWorkflowPublishTaskTokenFunction:
     Type: "AWS::Lambda::Function"
     Properties:
-      FunctionName: test-stack-sets-lambda
+      FunctionName: test-stack-sets-lambda2
       Handler: index.handler
       Runtime: nodejs10.x
       Code:
         S3Bucket: !Sub test-stacksets-${AWS::Region}
-        S3Key: 1.zip
+        S3Key: lambda/dummyfunction/lambdaCode.zip
       Description: Dummy function to test deployment
       MemorySize: 128
       Timeout: 10
