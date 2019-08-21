@@ -105,7 +105,7 @@ const main = async () => {
   const { Account: defaultAccountId } = await sts.getCallerIdentity({}).promise()
   const targets = { [defaultAccountId]: { 'us-east-1': true, 'us-west-2': true } }
 
-  const templateURL = uploadTemplate(templatePath, s3Bucket, s3Key)
+  const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
 
   /* Update/create Stack Set */
   await createOrUpdateStackSet(stackSetName, templateURL)
@@ -156,17 +156,26 @@ const main = async () => {
 
   await waitForStackSetOperationsComplete(stackSetName, createStackInstanceOpIds)
 
-  /*
-  const createStackInstanceOpIds = (Promise.all(createStackInstancePromises)).sort()
+  const deleteStackInstancePromises = []
 
-  while (createStackInstanceOpIds.length > 0) {
-    // TODO: Deal with pagination
-    const { Summaries } = await cloudformation.listStackSetOperations({ StackSetName: stackSetName }).promise()
-    const stackSetOpsSummaries = Summaries.sort((a, b) => {
-      return a.OperationId.localeCompare(b.OperationId)
-    })
-  } */
-  /* Do the deletes */
+  for (const account of Object.keys(deleteTargets)) {
+    const deleteStackInstanceParams = {
+      StackSetName: stackSetName,
+      Accounts: [account],
+      Regions: deleteTargets[account],
+      RetainStacks: false
+    }
+
+    if (deleteStackInstanceParams.Regions.length > 0) {
+      deleteStackInstancePromises.push(cloudformation.deleteStackInstances(deleteStackInstanceParams).promise())
+    }
+  }
+
+  const deleteStackInstanceOpIds = (await Promise.all(deleteStackInstancePromises)).map((data) => {
+    return data.OperationId
+  })
+
+  await waitForStackSetOperationsComplete(stackSetName, deleteStackInstanceOpIds)
 }
 
 main()
