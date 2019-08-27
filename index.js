@@ -1,5 +1,7 @@
 const AWS = require('aws-sdk')
-const fs = require('fs')
+const fs = require('fs-extra')
+const yaml = require('js-yaml')
+const cloudFormationAPIVersion = { apiVersion: '2010-05-15' }
 
 /* Will use file only for now. Maybe add cmd args later */
 // const test = process.argv.slice(2)
@@ -55,8 +57,22 @@ const waitForStackSetOperationsComplete = async (stackSetName, operationIds) => 
   }
 }
 
+const uploadTemplate = async (templatePath, s3Bucket, s3Key) => {
+  const s3 = new AWS.S3({ apiVersion: '2006-03-01' })
+  const s3FullKey = s3Key ? `${s3Key}/${templatePath}` : templatePath
+  const templateReadStream = fs.createReadStream(templatePath)
+  const s3UploadParams = {
+    Bucket: s3Bucket,
+    Key: s3FullKey,
+    ServerSideEncryption: 'AES256',
+    Body: templateReadStream
+  }
+  const { Location: templateURL } = await s3.upload(s3UploadParams).promise()
+  return templateURL
+}
+
 const createOrUpdateStackSet = async (stackSetName, templateURL) => {
-  const cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
+  const cloudformation = new AWS.CloudFormation(cloudFormationAPIVersion)
   const stackSetParams = {
     StackSetName: stackSetName,
     Capabilities: ['CAPABILITY_NAMED_IAM'],
@@ -73,44 +89,8 @@ const createOrUpdateStackSet = async (stackSetName, templateURL) => {
   }
 }
 
-const uploadTemplate = async (templatePath, s3Bucket, s3Key) => {
-  const s3 = new AWS.S3({ apiVersion: '2006-03-01' })
-  const s3FullKey = s3Key ? `${s3Key}/${templatePath}` : templatePath
-  const templateReadStream = fs.createReadStream(templatePath)
-  const s3UploadParams = {
-    Bucket: s3Bucket,
-    Key: s3FullKey,
-    ServerSideEncryption: 'AES256',
-    Body: templateReadStream
-  }
-  const { Location: templateURL } = await s3.upload(s3UploadParams).promise()
-  return templateURL
-}
-
-const main = async () => {
-  /* Get params from file - temp use hard code */
-  const stackSetName = 'test-stacksets'
-  const templatePath = 'template.yml'
-  const s3Bucket = 'test-stacksets-us-east-1'
-  const s3Key = ''
-  const defaultRegion = 'us-east-1'
-
-  if (!AWS.config.region) {
-    AWS.config.update({ region: defaultRegion })
-  }
-
-  const cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
-  const sts = new AWS.STS({ apiVersion: '2011-06-15' })
-
-  const { Account: defaultAccountId } = await sts.getCallerIdentity({}).promise()
-  const targets = { [defaultAccountId]: { 'us-east-1': true, 'us-west-2': true } }
-
-  const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
-
-  /* Update/create Stack Set */
-  await createOrUpdateStackSet(stackSetName, templateURL)
-
-  /* Check and make stack set instance adjustments if needed */
+const adjustInstances = async (stackSetName, targets) => {
+  const cloudformation = new AWS.CloudFormation(cloudFormationAPIVersion)
   const listStackInstancesParams = {
     StackSetName: stackSetName
   }
@@ -176,6 +156,45 @@ const main = async () => {
   })
 
   await waitForStackSetOperationsComplete(stackSetName, deleteStackInstanceOpIds)
+}
+
+const main = async () => {
+  /* Get params from file - temp use hard code */
+  const { settings: {
+    stackSetName,
+    templatePath = 'template.yml',
+    s3Bucket,
+    s3Key = '',
+    targets
+  } } = yaml.safeLoad(await fs.readFile('cfdeploy.yml', 'utf-8'))
+
+  if (!stackSetName) {
+    throw new Error('Need to provide stack set name')
+  }
+
+  if (!s3Bucket) {
+    throw new Error('Need to provide S3 bucket name')
+  }
+
+  const defaultRegion = 'us-east-1'
+  if (!AWS.config.region) {
+    AWS.config.update({ region: defaultRegion })
+  }
+
+  const sts = new AWS.STS({ apiVersion: '2011-06-15' })
+  const { Account: defaultAccountId } = await sts.getCallerIdentity({}).promise()
+  if (targets.default && !targets[defaultAccountId]) {
+    targets[defaultAccountId] = targets.default
+    delete targets.default
+  }
+
+  const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
+
+  /* Update/create Stack Set */
+  await createOrUpdateStackSet(stackSetName, templateURL)
+
+  /* Check and make stack set instance adjustments if needed */
+  await adjustInstances(stackSetName, targets)
 }
 
 main()
