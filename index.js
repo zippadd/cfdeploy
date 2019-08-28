@@ -3,9 +3,47 @@ const fs = require('fs-extra')
 const yaml = require('js-yaml')
 const cloudFormationAPIVersion = { apiVersion: '2010-05-15' }
 
-/* Will use file only for now. Maybe add cmd args later */
-// const test = process.argv.slice(2)
-// console.log(test)
+/*
+  Ensure a default region is set as AWS SDK requires it
+  Assume us-east-1 as that is the AWS default (https://docs.aws.amazon.com/general/latest/gr/rande.html)
+*/
+const defaultRegion = 'us-east-1'
+if (!AWS.config.region) {
+  AWS.config.update({ region: defaultRegion })
+}
+
+const getSettings = async () => {
+  const { settings } = yaml.safeLoad(await fs.readFile('cfdeploy.yml', 'utf-8'))
+
+  const {
+    stackSetName,
+    templatePath = 'template.yml',
+    s3Bucket,
+    s3Key = '',
+    targets
+  } = settings
+
+  if (!stackSetName) {
+    throw new Error('Need to provide stack set name')
+  }
+
+  if (!s3Bucket) {
+    throw new Error('Need to provide S3 bucket name')
+  }
+
+  const sts = new AWS.STS({ apiVersion: '2011-06-15' })
+  const { Account: defaultAccountId } = await sts.getCallerIdentity({}).promise()
+  if (targets.default && !targets[defaultAccountId]) {
+    targets[defaultAccountId] = targets.default
+    delete targets.default
+  }
+
+  settings.templatePath = templatePath
+  settings.s3Key = s3Key
+  settings.targets = targets
+
+  return settings
+}
 
 const waitForStackSetOperationsComplete = async (stackSetName, operationIds) => {
   const cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
@@ -159,34 +197,7 @@ const adjustInstances = async (stackSetName, targets) => {
 }
 
 const main = async () => {
-  /* Get params from file - temp use hard code */
-  const { settings: {
-    stackSetName,
-    templatePath = 'template.yml',
-    s3Bucket,
-    s3Key = '',
-    targets
-  } } = yaml.safeLoad(await fs.readFile('cfdeploy.yml', 'utf-8'))
-
-  if (!stackSetName) {
-    throw new Error('Need to provide stack set name')
-  }
-
-  if (!s3Bucket) {
-    throw new Error('Need to provide S3 bucket name')
-  }
-
-  const defaultRegion = 'us-east-1'
-  if (!AWS.config.region) {
-    AWS.config.update({ region: defaultRegion })
-  }
-
-  const sts = new AWS.STS({ apiVersion: '2011-06-15' })
-  const { Account: defaultAccountId } = await sts.getCallerIdentity({}).promise()
-  if (targets.default && !targets[defaultAccountId]) {
-    targets[defaultAccountId] = targets.default
-    delete targets.default
-  }
+  const { stackSetName, templatePath, s3Bucket, s3Key, targets } = await getSettings()
 
   const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
 
