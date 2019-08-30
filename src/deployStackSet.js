@@ -19,7 +19,7 @@ const getSettings = async () => {
     stackSetName,
     templatePath = 'template.yml',
     s3Bucket,
-    s3Key = '',
+    s3Key: s3Prefix = '',
     targets
   } = settings
 
@@ -39,7 +39,7 @@ const getSettings = async () => {
   }
 
   settings.templatePath = templatePath
-  settings.s3Key = s3Key
+  settings.s3Prefix = s3Prefix
   settings.targets = targets
 
   return settings
@@ -95,13 +95,13 @@ const waitForStackSetOperationsComplete = async (stackSetName, operationIds) => 
   }
 }
 
-const uploadTemplate = async (templatePath, s3Bucket, s3Key) => {
+const uploadTemplate = async (localTemplatePath, s3Bucket, s3Prefix) => {
   const s3 = new AWS.S3({ apiVersion: '2006-03-01' })
-  const s3FullKey = s3Key ? `${s3Key}/${templatePath}` : templatePath
-  const templateReadStream = fs.createReadStream(templatePath)
+  const s3Key = s3Prefix ? `${s3Prefix}/${localTemplatePath}` : localTemplatePath
+  const templateReadStream = fs.createReadStream(localTemplatePath)
   const s3UploadParams = {
     Bucket: s3Bucket,
-    Key: s3FullKey,
+    Key: s3Key,
     ServerSideEncryption: 'AES256',
     Body: templateReadStream
   }

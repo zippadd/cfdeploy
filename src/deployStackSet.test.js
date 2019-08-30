@@ -1,8 +1,8 @@
 /* eslint-env jest */
 const {
-  getSettings/* ,
-  waitForStackSetOperationsComplete,
-  uploadTemplate,
+  getSettings,
+  /* waitForStackSetOperationsComplete, */
+  uploadTemplate /* ,
   createOrUpdateStackSet,
   adjustInstances,
   deployStackSet */
@@ -21,15 +21,22 @@ const mockAWSAcctNum = Math.floor(Math.random() * (AWS_ACCT_NUM_MAX - AWS_ACCT_N
 AWS.mock('STS', 'getCallerIdentity', jest.fn((params, callback) => {
   return callback(null, { Account: mockAWSAcctNum })
 }))
+AWS.mock('S3', 'upload', jest.fn((params, callback) => {
+  const {
+    Bucket,
+    Key
+  } = params
+  return callback(null, { Location: `https://${Bucket}.s3.amazonaws.com/${Key}` })
+}))
 
 describe('Get Settings', () => {
-  test('Get Settings returns sample cfdeploy settings object', () => {
+  test('Returns sample cfdeploy settings object read from file', () => {
     expect.assertions(1)
     return expect(getSettings()).resolves.toEqual({
       stackSetName: 'test-stacksets',
       templatePath: 'template.yml',
       s3Bucket: 'test-stacksets-us-east-1',
-      s3Key: '',
+      s3Prefix: '',
       targets: {
         [mockAWSAcctNum]: {
           'us-east-1': true,
@@ -37,5 +44,18 @@ describe('Get Settings', () => {
         }
       }
     })
+  })
+})
+
+describe('Upload Template', () => {
+  test('Returns proper URL for template upload with no prefix', () => {
+    expect.assertions(1)
+    return expect(uploadTemplate('template.yml', 'test-stacksets-us-east-1', '')).resolves
+      .toEqual('https://test-stacksets-us-east-1.s3.amazonaws.com/template.yml')
+  })
+  test('Returns proper URL for template upload with a prefix', () => {
+    expect.assertions(1)
+    return expect(uploadTemplate('template.yml', 'test-stacksets-us-east-1', 'test')).resolves
+      .toEqual('https://test-stacksets-us-east-1.s3.amazonaws.com/test/template.yml')
   })
 })
