@@ -48,14 +48,15 @@ const getSettings = async () => {
 const waitForStackSetOperationsComplete = async (stackSetName, operationIds) => {
   const cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
   const opIds = new Set(operationIds)
+  let nextToken
 
   while (opIds.size > 0) {
     let stackInstanceOpIdsToReview = opIds.size
-    let nextToken = true
 
-    while (nextToken) {
+    do {
       const listStackSetOperationsParams = {
-        StackSetName: stackSetName
+        StackSetName: stackSetName,
+        ...(nextToken && { NextToken: nextToken })
       }
       const { Summaries: summaries, NextToken } = await cloudformation.listStackSetOperations(listStackSetOperationsParams).promise()
       nextToken = NextToken
@@ -87,11 +88,11 @@ const waitForStackSetOperationsComplete = async (stackSetName, operationIds) => 
           break
         }
       }
+    } while (nextToken)
 
-      await new Promise((resolve) => {
-        setTimeout(resolve, 5 * 1000)
-      })
-    }
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5 * 1000)
+    })
   }
 }
 
