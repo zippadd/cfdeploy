@@ -27,7 +27,8 @@
   "devDependencies": {
     "aws-sdk-mock": "^4.5.0",
     "jest": "^24.9.0",
-    "standard": "^14.0.2"
+    "standard": "^14.0.2",
+    "uuid": "^3.3.3"
   },
   "dependencies": {
     "aws-sdk": "^2.518.0",
