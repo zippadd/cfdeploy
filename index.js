@@ -1,4 +1,4 @@
-const { deployStackSet } = require('./src/deployStackSet.js')
+const { cfdeploy } = require('./src/index.js')
 
 deployStackSet()
   .then(() => {
