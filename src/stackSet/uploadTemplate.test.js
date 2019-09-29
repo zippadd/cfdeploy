@@ -14,7 +14,7 @@ AWS.mock('S3', 'upload', jest.fn((params, callback) => {
 }))
 
 describe('Upload Template', () => {
-  const { uploadTemplate } = require('./deployStackSet.js')
+  const { uploadTemplate } = require('./uploadTemplate.js')
   test('Returns proper URL for template upload with no prefix', () => {
     expect.assertions(1)
     return expect(uploadTemplate('template.yml', 'test-stacksets-us-east-1', '')).resolves

@@ -1,7 +1,6 @@
 const AWS = require('aws-sdk')
 const { getSettings } = require('./getSettings.js')
 const { uploadTemplate } = require('./uploadTemplate.js')
-const { waitForStackSetOperationsComplete } = require('./waitForStackSetOperationsComplete.js')
 const { createOrUpdateStackSet } = require('./createOrUpdateStackSet.js')
 const { adjustInstances } = require('./adjustInstances.js')
 
@@ -26,11 +25,4 @@ const deployStackSet = async () => {
   await adjustInstances(stackSetName, targets)
 }
 
-module.exports = {
-  getSettings,
-  waitForStackSetOperationsComplete,
-  uploadTemplate,
-  createOrUpdateStackSet,
-  adjustInstances,
-  deployStackSet
-}
+module.exports = { deployStackSet }

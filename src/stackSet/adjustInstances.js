@@ -18,14 +18,16 @@ const adjustInstances = async (stackSetName, targets) => {
     }
 
     if (!targets[account] || !targets[account][region]) {
+      /* This is an active instance, but is not on the target list, so need to delete */
       deleteTargets[account] ? deleteTargets[account].push(region) : deleteTargets[account] = [region]
     } else {
-      /* Mark this as a completed target by removing from the list
-      NOTE: should be ok to as calls to CreateStackInstances do NOT
+      /* This is an active instance, so mark as a completed target by removing from the list */
+      /* NOTE: should be ok as calls to CreateStackInstances do NOT
       create additional instances where one already exist. Thus we
       should not get duplicates in regions for an account id */
       delete targets[account][region]
     }
+    /* Remaining targets are ones we need to create */
   }
 
   const createStackInstancePromises = []
@@ -58,9 +60,7 @@ const adjustInstances = async (stackSetName, targets) => {
       RetainStacks: false
     }
 
-    if (deleteStackInstanceParams.Regions.length > 0) {
-      deleteStackInstancePromises.push(cloudformation.deleteStackInstances(deleteStackInstanceParams).promise())
-    }
+    deleteStackInstancePromises.push(cloudformation.deleteStackInstances(deleteStackInstanceParams).promise())
   }
 
   const deleteStackInstanceOpIds = (await Promise.all(deleteStackInstancePromises)).map((data) => {

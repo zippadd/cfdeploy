@@ -4,7 +4,7 @@ const AWS_SDK = require('aws-sdk')
 AWS.setSDKInstance(AWS_SDK)
 
 const getPsuedoRandBetween = (minNum, maxNum) => {
-  return Math.floor(Math.random() * (maxNum - minNum) - minNum)
+  return Math.floor(Math.random() * (maxNum - minNum + 1) + minNum)
 }
 
 /* AWS Account numbers are 12 digits so set a corresponding max and min */
