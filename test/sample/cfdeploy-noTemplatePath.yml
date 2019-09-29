@@ -1,0 +1,8 @@
+settings:
+  stackSetName: 'test-stacksets'
+  s3Bucket: 'test-stacksets-us-east-1'
+  s3Prefix: ''
+  targets:
+    default:
+      us-east-1: true
+      us-west-2: true
