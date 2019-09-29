@@ -1,0 +1,8 @@
+settings:
+  stackSetName: 'test-stacksets'
+  templatePath: 'template.yml'
+  s3Prefix: ''
+  targets:
+    default:
+      us-east-1: true
+      us-west-2: true
