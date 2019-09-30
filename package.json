@@ -4,7 +4,7 @@
   "description": "Node.js module for deploying Cloudformation templates",
   "main": "index.js",
   "scripts": {
-    "test": "cd test/sample && jest --coverage"
+    "test": "cd test/sample && jest --coverage && codecov"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/zippadd/cloudformation-deploy#readme",
   "devDependencies": {
     "aws-sdk-mock": "^4.5.0",
+    "codecov": "^3.6.1",
     "jest": "^24.9.0",
     "lodash.clonedeep": "^4.5.0",
     "standard": "^14.3.1",
