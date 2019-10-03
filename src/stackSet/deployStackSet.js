@@ -13,8 +13,8 @@ if (!AWS.config.region) {
   AWS.config.update({ region: defaultRegion })
 }
 
-const deployStackSet = async () => {
-  const { stackSetName, templatePath, s3Bucket, s3Key, targets } = await getSettings()
+const deployStackSet = async (filePath) => {
+  const { stackSetName, templatePath, s3Bucket, s3Key, targets } = await getSettings(filePath)
 
   const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
 
