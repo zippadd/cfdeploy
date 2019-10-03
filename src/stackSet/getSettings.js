@@ -1,9 +1,11 @@
 const AWS = require('aws-sdk')
 const yaml = require('js-yaml')
 const fs = require('fs-extra')
+const path = require('path')
 
 const getSettings = async (filePath = 'cfdeploy.yml') => {
-  const file = await fs.readFile(filePath, 'utf-8')
+  const absFilePath = path.join(process.cwd(), filePath)
+  const file = await fs.readFile(absFilePath, 'utf-8')
   let yamlDoc
   try {
     yamlDoc = yaml.safeLoad(file)
@@ -43,7 +45,7 @@ const getSettings = async (filePath = 'cfdeploy.yml') => {
     delete targets.default
   }
 
-  settings.templatePath = templatePath
+  settings.templatePath = path.join(path.dirname(absFilePath), templatePath)
   settings.s3Prefix = s3Prefix
   settings.targets = targets
 
