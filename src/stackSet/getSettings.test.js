@@ -2,10 +2,12 @@
 const AWS = require('aws-sdk-mock')
 const AWS_SDK = require('aws-sdk')
 AWS.setSDKInstance(AWS_SDK)
+const path = require('path')
 
 const stackSetName = 'test-stacksets'
 const mockAWSAcctNum = 123456789012
 const mockAWSAcctNum2 = 111111111111
+const templateName = 'template.yml'
 
 AWS.mock('STS', 'getCallerIdentity', jest.fn((params, callback) => {
   return callback(null, { Account: mockAWSAcctNum })
@@ -17,7 +19,7 @@ describe('Get Settings', () => {
     expect.assertions(1)
     return expect(getSettings()).resolves.toEqual({
       stackSetName,
-      templatePath: 'template.yml',
+      templatePath: path.join(process.cwd(), templateName),
       s3Bucket: 'test-stacksets-us-east-1',
       s3Prefix: '',
       targets: {
@@ -32,7 +34,7 @@ describe('Get Settings', () => {
     expect.assertions(1)
     return expect(getSettings('cfdeploy-nondefault.yml')).resolves.toEqual({
       stackSetName,
-      templatePath: 'template.yml',
+      templatePath: path.join(process.cwd(), templateName),
       s3Bucket: 'test-stacksets-us-east-1',
       s3Prefix: '',
       targets: {
@@ -47,7 +49,7 @@ describe('Get Settings', () => {
     expect.assertions(1)
     return expect(getSettings('cfdeploy-noTemplatePath.yml')).resolves.toEqual({
       stackSetName,
-      templatePath: 'template.yml',
+      templatePath: path.join(process.cwd(), templateName),
       s3Bucket: 'test-stacksets-us-east-1',
       s3Prefix: '',
       targets: {
