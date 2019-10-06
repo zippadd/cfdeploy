@@ -1,8 +1,9 @@
 deployments:
   - 
-    type: stackSet
+    type: notValid
     name: 'test-stacksets'
     templatePath: 'template.yml'
+    s3Bucket: 'test-stacksets-us-east-1'
     s3Prefix: ''
     targets:
       default:
