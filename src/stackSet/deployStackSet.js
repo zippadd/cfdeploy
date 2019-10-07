@@ -1,5 +1,4 @@
 const AWS = require('aws-sdk')
-const { getSettings } = require('./getSettings.js')
 const { uploadTemplate } = require('./uploadTemplate.js')
 const { createOrUpdateStackSet } = require('./createOrUpdateStackSet.js')
 const { adjustInstances } = require('./adjustInstances.js')
@@ -13,16 +12,22 @@ if (!AWS.config.region) {
   AWS.config.update({ region: defaultRegion })
 }
 
-const deployStackSet = async (filePath) => {
-  const { stackSetName, templatePath, s3Bucket, s3Key, targets } = await getSettings(filePath)
+const deployStackSet = async (deployment) => {
+  const { name, type, templatePath, s3Bucket, s3Key, targets } = deployment
+
+  if (type !== 'stackSet') {
+    throw new Error('Requested deploying a StackSet, but type is not stackSet')
+  }
 
   const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
 
   /* Update/create Stack Set */
-  await createOrUpdateStackSet(stackSetName, templateURL)
+  await createOrUpdateStackSet(name, templateURL)
 
   /* Check and make stack set instance adjustments if needed */
-  await adjustInstances(stackSetName, targets)
+  await adjustInstances(name, targets)
+
+  console.log(`${name} deployment has completed.`)
 }
 
 module.exports = { deployStackSet }

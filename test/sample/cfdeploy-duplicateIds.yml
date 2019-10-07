@@ -1,12 +1,14 @@
-settings:
-  stackSetName: 'test-stacksets'
-  templatePath: 'template.yml'
-  s3Bucket: 'test-stacksets-us-east-1'
-  s3Prefix: ''
-  targets:
-    123456789012:
-      us-east-1: true
-      us-west-2: true
-    123456789012:
-      us-east-1: true
-      us-west-2: true
+deployments:
+  - 
+    type: stackSet
+    name: 'test-stacksets'
+    templatePath: 'template.yml'
+    s3Bucket: 'test-stacksets-us-east-1'
+    s3Prefix: ''
+    targets:
+      123456789012:
+        us-east-1: true
+        us-west-2: true
+      123456789012:
+        us-east-1: true
+        us-west-2: true
