@@ -29,7 +29,7 @@ cfdeploy()
   })
   .catch((err) => {
     console.log(err)
-    process.exitCode = 1
+    //process.exitCode = 1
   })
 
 module.exports = { cfdeploy }
