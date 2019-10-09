@@ -2,7 +2,9 @@
   "name": "cloudformation-deploy",
   "version": "1.0.0",
   "description": "Node.js module for deploying Cloudformation templates",
-  "bin" : { "cfdeploy" : "bin/cfdeploy" },
+  "bin": {
+    "cfdeploy": "bin/cfdeploy"
+  },
   "main": "src/index.js",
   "scripts": {
     "test": "cd test/sample && jest --coverage && codecov",

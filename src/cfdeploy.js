@@ -2,13 +2,14 @@ const { getSettings } = require('./getSettings.js')
 const { deployStackSet } = require('./stackSet/deployStackSet.js')
 const commander = require('commander')
 
-const main = async () => {
+const cfdeploy = async () => {
   const program = new commander.Command()
   program
     .option('-f, --file <filePath>', 'path to cfdeploy file')
+    .allowUnknownOption(true)
 
   program.parse(process.argv)
-  const filePath = program.file ? program.file.trim() : ''
+  const filePath = program.file ? program.file.trim() : 'cfdeploy.yml'
 
   const deployments = await getSettings(filePath)
   const deploymentPromises = []
@@ -22,7 +23,7 @@ const main = async () => {
   await Promise.all(deploymentPromises)
 }
 
-main()
+cfdeploy()
   .then(() => {
     console.log('All deployments have completed.')
   })
@@ -30,3 +31,5 @@ main()
     console.log(err)
     process.exitCode = 1
   })
+
+module.exports = { cfdeploy }
