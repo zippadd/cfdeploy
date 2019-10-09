@@ -6,6 +6,7 @@ const cfdeploy = async () => {
   const program = new commander.Command()
   program
     .option('-f, --file <filePath>', 'path to cfdeploy file')
+    .allowUnknownOption(true)
 
   console.log(process.argv)
   program.parse(process.argv)
@@ -29,7 +30,7 @@ cfdeploy()
   })
   .catch((err) => {
     console.log(err)
-    //process.exitCode = 1
+    process.exitCode = 1
   })
 
 module.exports = { cfdeploy }
