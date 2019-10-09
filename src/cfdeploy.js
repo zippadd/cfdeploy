@@ -7,6 +7,7 @@ const cfdeploy = async () => {
   program
     .option('-f, --file <filePath>', 'path to cfdeploy file')
 
+  console.log(process.argv)
   program.parse(process.argv)
   const filePath = program.file ? program.file.trim() : 'cfdeploy.yml'
 
