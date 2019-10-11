@@ -5,8 +5,8 @@ Currently only supports stacksets as this seemed to be a general gap in the comm
 
 ## Stacksets
 Uploads the referenced Cloudformation in the cfdeploy file to the given bucket and creates/updates the stack set per the given name.
-For creations, it will create stackset instances per specified targets (AWS account/region)
-For updates, it will update existing stackset instances first and then remove/create stackset instances per specified targets (AWS account/region)
+* For creations, it will create stackset instances per specified targets (AWS account/region)
+* For updates, it will update existing stackset instances first and then remove/create stackset instances per specified targets (AWS account/region)
 
 # Installation
 ```bash
@@ -41,10 +41,10 @@ deployments:
       <AWS account number or "default" for current user's AWS account number>:
         <region 1>: true
         <region 2>: true
-        ...
+        ...Additional regions as needed
       ...Additional AWS account numbers with regions as needed
   -
-    ...Repeat deployments as needed
+    ...Additional deployments as needed
 ```
 
 # Contributing
