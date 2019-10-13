@@ -1,7 +1,7 @@
 {
-  "name": "cfdeploy",
+  "name": "cfdeployer",
   "version": "1.0.0",
-  "description": "Node.js module for deploying Cloudformation templates",
+  "description": "Node.js command line for deploying Cloudformation templates",
   "bin": {
     "cfdeploy": "bin/cfdeploy"
   },
