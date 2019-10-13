@@ -1,4 +1,10 @@
 # CFDeploy
+[![Build Status](https://travis-ci.com/zippadd/cfdeploy.svg?branch=master)](https://travis-ci.com/zippadd/cfdeploy)
+[![codecov](https://codecov.io/gh/zippadd/cfdeploy/branch/master/graph/badge.svg)](https://codecov.io/gh/zippadd/cfdeploy)
+[![dependencies Status](https://david-dm.org/zippadd/cfdeploy/status.svg)](https://david-dm.org/zippadd/cfdeploy)
+[![devDependencies Status](https://david-dm.org/zippadd/cfdeploy/dev-status.svg)](https://david-dm.org/zippadd/cfdeploy?type=dev)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
 Node.js module for deploying Cloudformation templates.
 
 Currently only supports stacksets as this seemed to be a general gap in the community, but may be extended in the future.
