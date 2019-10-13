@@ -1,5 +1,5 @@
 # CFDeploy
-[![Build Status](https://travis-ci.com/zippadd/cloudformation-deploy.svg?branch=master)](https://travis-ci.com/zippadd/cloudformation-deploy)
+[![Build Status](https://travis-ci.com/zippadd/cfdeploy.svg?branch=master)](https://travis-ci.com/zippadd/cfdeploy)
 Node.js module for deploying Cloudformation templates.
 
 Currently only supports stacksets as this seemed to be a general gap in the community, but may be extended in the future.
