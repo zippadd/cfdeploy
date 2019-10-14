@@ -1,11 +1,11 @@
 {
   "name": "cfdeployer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Node.js command line for deploying Cloudformation templates",
   "bin": {
     "cfdeploy": "bin/cfdeploy"
   },
-  "main": "src/index.js",
+  "main": "src/cfdeploy.js",
   "scripts": {
     "test": "cd test/sample && jest --coverage && codecov",
     "start": "$npm_package_bin_cfdeploy",
