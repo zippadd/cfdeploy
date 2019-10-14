@@ -1,4 +1,4 @@
-# CFDeploy
+# CFDeployer
 [![Build Status](https://travis-ci.com/zippadd/cfdeploy.svg?branch=master)](https://travis-ci.com/zippadd/cfdeploy)
 [![codecov](https://codecov.io/gh/zippadd/cfdeploy/branch/master/graph/badge.svg)](https://codecov.io/gh/zippadd/cfdeploy)
 [![dependencies Status](https://david-dm.org/zippadd/cfdeploy/status.svg)](https://david-dm.org/zippadd/cfdeploy)
@@ -16,7 +16,7 @@ Uploads the referenced Cloudformation in the cfdeploy file to the given bucket a
 
 # Installation
 ```bash
-npm install -g cfdeploy
+npm install -g cfdeployer
 ```
 
 # Usage
