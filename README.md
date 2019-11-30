@@ -64,7 +64,7 @@ automatically zipped.
 
 Nested stacks are supported. The resource name name of the nested stack is used to construct the path.
 
-S3 key limitations of 1024 bytes apply, so be sure to avoid excessively long resource and/or file names.
+S3 key limitations of 1024 bytes apply, so be sure to avoid very long resource and/or file names.
 
 ## Uploaded Artifact S3 Key Structure
 ### Template Files
