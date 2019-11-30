@@ -34,9 +34,9 @@ describe('Deploy Stack Set Flow', () => {
         waitForStackSetOperationsComplete: async () => {}
       }
     })
-    jest.doMock('./uploadTemplate', () => {
+    jest.doMock('../utilities/uploadS3', () => {
       return {
-        uploadTemplate: async () => {}
+        uploadS3: async () => { return { url: '' } }
       }
     })
     jest.doMock('./createOrUpdateStackSet', () => {

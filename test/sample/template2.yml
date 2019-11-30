@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Test Stack Sets Nested"
+###Resources###
+Resources: 
+  BasicExecRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      RoleName: !Join [ "-", [test-stack-sets-lambda-role2, !Ref "AWS::Region"]]
+      ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+  DummyFunction2:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: test-stack-sets-lambda2
+      Handler: index.handler
+      Runtime: nodejs10.x
+      Code: ./packages/dummyFunction
+      Description: Dummy function to test deployment
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt BasicExecRole.Arn
+      TracingConfig:
+        Mode: Active

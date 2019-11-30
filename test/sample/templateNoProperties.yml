@@ -1,0 +1,6 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Test Stack Sets"
+###Resources###
+Resources: 
+  DummyFunction:
+    Type: "AWS::Lambda::Function"

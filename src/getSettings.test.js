@@ -14,55 +14,50 @@ AWS.mock('STS', 'getCallerIdentity', jest.fn((params, callback) => {
   return callback(null, { Account: mockAWSAcctNum })
 }))
 
+const settings = [{
+  type,
+  name,
+  templatePath: path.join(process.cwd(), templateName),
+  s3Bucket: 'test-stacksets-us-east-1',
+  s3Prefix: '',
+  targets: {
+    [mockAWSAcctNum]: {
+      'us-east-1': true,
+      'us-west-2': true
+    }
+  }
+}]
+const settings2 = [{
+  type,
+  name,
+  templatePath: path.join(process.cwd(), templateName),
+  s3Bucket: 'test-stacksets-us-east-1',
+  s3Prefix: '',
+  targets: {
+    [mockAWSAcctNum2]: {
+      'us-east-1': true,
+      'us-west-2': true
+    }
+  }
+}]
+
 describe('Get Settings', () => {
   const { getSettings } = require('./getSettings.js')
   test('Returns sample cfdeploy settings object read from file', () => {
     expect.assertions(1)
-    return expect(getSettings()).resolves.toEqual([{
-      type,
-      name,
-      templatePath: path.join(process.cwd(), templateName),
-      s3Bucket: 'test-stacksets-us-east-1',
-      s3Prefix: '',
-      targets: {
-        [mockAWSAcctNum]: {
-          'us-east-1': true,
-          'us-west-2': true
-        }
-      }
-    }])
+    return expect(getSettings()).resolves.toEqual(settings)
+  })
+  test('Returns sample cfdeploy settings object read from file absolute path', () => {
+    expect.assertions(1)
+    return expect(getSettings(`${path.join(process.cwd(), 'cfdeploy.yml')}`)).resolves.toEqual(settings)
   })
   test('Returns sample cfdeploy settings object read from file with a specified account id', () => {
     expect.assertions(1)
-    return expect(getSettings('cfdeploy-nondefault.yml')).resolves.toEqual([{
-      type,
-      name,
-      templatePath: path.join(process.cwd(), templateName),
-      s3Bucket: 'test-stacksets-us-east-1',
-      s3Prefix: '',
-      targets: {
-        [mockAWSAcctNum2]: {
-          'us-east-1': true,
-          'us-west-2': true
-        }
-      }
-    }])
+    return expect(getSettings('cfdeploy-nondefault.yml')).resolves.toEqual(settings2)
   })
   test('Returns sample cfdeploy settings object read from file when no template is set', () => {
     expect.assertions(1)
-    return expect(getSettings('cfdeploy-noTemplatePath.yml')).resolves.toEqual([{
-      type,
-      name,
-      templatePath: path.join(process.cwd(), templateName),
-      s3Bucket: 'test-stacksets-us-east-1',
-      s3Prefix: '',
-      targets: {
-        [mockAWSAcctNum]: {
-          'us-east-1': true,
-          'us-west-2': true
-        }
-      }
-    }])
+    return expect(getSettings('cfdeploy-noTemplatePath.yml')).resolves.toEqual(settings)
   })
   test('Returns an error for a malformed config file', () => {
     expect.assertions(1)

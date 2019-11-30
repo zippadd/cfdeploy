@@ -4,7 +4,7 @@ const fs = require('fs-extra')
 const path = require('path')
 
 const getSettings = async (filePath = 'cfdeploy.yml') => {
-  const absFilePath = path.join(process.cwd(), filePath)
+  const absFilePath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath)
   const file = await fs.readFile(absFilePath, 'utf-8')
   let yamlDoc
   try {
@@ -24,7 +24,7 @@ const getSettings = async (filePath = 'cfdeploy.yml') => {
       name,
       templatePath = 'template.yml',
       s3Bucket,
-      s3Key: s3Prefix = '',
+      s3Prefix = '',
       targets
     } = deployment
 

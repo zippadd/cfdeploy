@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk')
-const { uploadTemplate } = require('./uploadTemplate.js')
+// const { artifactUpload } = require('./artifactUpload.js')
+const { uploadS3 } = require('../utilities/uploadS3.js')
 const { createOrUpdateStackSet } = require('./createOrUpdateStackSet.js')
 const { adjustInstances } = require('./adjustInstances.js')
 
@@ -19,7 +20,9 @@ const deployStackSet = async (deployment) => {
     throw new Error('Requested deploying a StackSet, but type is not stackSet')
   }
 
-  const templateURL = await uploadTemplate(templatePath, s3Bucket, s3Key)
+  // await artifactUpload(templatePath)
+
+  const { url: templateURL } = await uploadS3(templatePath, s3Bucket, s3Key)
 
   /* Update/create Stack Set */
   await createOrUpdateStackSet(name, templateURL)
