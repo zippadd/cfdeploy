@@ -82,8 +82,6 @@ s3Prefix/lambda/function/codeDirectory/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f
 s3Prefix/_nestedStack1/_nestedNestedStack1/lambda/function/codeDirectory/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f246e90a7c444ee25016e29d/codeDirectory.zip - file in nested template
 ```
 
-# 
-
 # Contributing
 I welcome pull requests, especially for bugfixes, and issue submissions.
 Please reach out if a larger feature is being considered so we can discuss prior to a PR.
