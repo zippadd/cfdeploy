@@ -41,7 +41,10 @@ Resources:
     Type: "AWS::ApiGateway::RestApi"
     Properties:
       Name: test-stack-sets-api
-      BodyS3Location: s3://dummybucket/key/api.json
+      BodyS3Location: {
+        Bucket: dummybucket,
+        Key: dummykey
+      }
   DummyFunction:
     Type: "AWS::Lambda::Function"
     Properties:

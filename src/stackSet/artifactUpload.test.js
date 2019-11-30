@@ -66,7 +66,10 @@ const getTemplateObject = (prefix) => {
       DummyAPIGAPI: {
         Properties: {
           Name: 'test-stack-sets-api',
-          BodyS3Location: `s3://${stackSetName}/${prefix ? `${prefix}/` : ''}apigateway/restapi/dummyapigapi/dummy.json/${exampleAPIGHash}/dummy.json`
+          BodyS3Location: {
+            Bucket: stackSetName,
+            Key: `${prefix ? `${prefix}/` : ''}apigateway/restapi/dummyapigapi/dummy.json/${exampleAPIGHash}/dummy.json`
+          }
         },
         Type: 'AWS::ApiGateway::RestApi'
       },
@@ -298,7 +301,10 @@ const getSkippedTemplateObject = (prefix) => {
       DummyAPIGAPI2: {
         Properties: {
           Name: 'test-stack-sets-api',
-          BodyS3Location: 's3://dummybucket/key/api.json'
+          BodyS3Location: {
+            Bucket: 'dummybucket',
+            Key: 'dummykey'
+          }
         },
         Type: 'AWS::ApiGateway::RestApi'
       },

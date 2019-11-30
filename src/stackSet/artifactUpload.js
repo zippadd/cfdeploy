@@ -44,16 +44,19 @@ const processResources = async (resources, s3Bucket, s3Prefix, yamlDocMap) => {
       case 'AWS::ApiGateway::RestApi': {
         const { BodyS3Location } = Properties
 
-        /* Skip any resources that don't need to be uploaded - either not present or already a URL */
-        if (!BodyS3Location || isS3URL(BodyS3Location)) {
+        /* Skip this resource if an object (or other non-string/null) is present as we only process paths */
+        if (!(typeof BodyS3Location === 'string' || BodyS3Location instanceof String)) {
           break
         }
 
-        const { s3URL } = await uploadS3(BodyS3Location, s3Bucket, s3CalcPrefix, {
+        const { bucket, key } = await uploadS3(BodyS3Location, s3Bucket, s3CalcPrefix, {
           hashVersioning: true
         })
 
-        Properties.BodyS3Location = s3URL
+        Properties.BodyS3Location = {
+          Bucket: bucket,
+          Key: key
+        }
         break
       }
       case 'AWS::Lambda::Function': {
