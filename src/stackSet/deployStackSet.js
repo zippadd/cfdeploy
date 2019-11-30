@@ -1,6 +1,5 @@
 const AWS = require('aws-sdk')
-// const { artifactUpload } = require('./artifactUpload.js')
-const { uploadS3 } = require('../utilities/uploadS3.js')
+const { artifactUpload } = require('./artifactUpload.js')
 const { createOrUpdateStackSet } = require('./createOrUpdateStackSet.js')
 const { adjustInstances } = require('./adjustInstances.js')
 
@@ -14,15 +13,13 @@ if (!AWS.config.region) {
 }
 
 const deployStackSet = async (deployment) => {
-  const { name, type, templatePath, s3Bucket, s3Key, targets } = deployment
+  const { name, type, templatePath, s3Bucket, s3Prefix, targets } = deployment
 
   if (type !== 'stackSet') {
     throw new Error('Requested deploying a StackSet, but type is not stackSet')
   }
 
-  // await artifactUpload(templatePath)
-
-  const { url: templateURL } = await uploadS3(templatePath, s3Bucket, s3Key)
+  const { url: templateURL } = await artifactUpload(templatePath, s3Bucket, s3Prefix)
 
   /* Update/create Stack Set */
   await createOrUpdateStackSet(name, templateURL)

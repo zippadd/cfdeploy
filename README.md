@@ -31,9 +31,11 @@ cfdeploy <options>
 # CFDeploy File Structure
 * Languages
   * Only YAML is supported. 
-* File naming / location
+* File Naming / Location
   * cfdeploy.yml, placed in the root (like e.g. .travis.yml) for easiest use and recognition
   * Can be named anything and placed wherever, but must specify file option (see above)
+* Cloudformation Template Restrictions
+  * Template must be YAML
 
 ```yaml
 deployments:
@@ -52,6 +54,35 @@ deployments:
   -
     ...Additional deployments as needed
 ```
+
+# Automatic Artifact Upload
+Similar to the Cloudformation CI [package command](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html),
+CFDeployer automatically uploads locally referenced artifacts to the S3 bucket and prefix specified in the CFDeploy file. It supports
+all of the resource types that the package command supports, except types that are not supported in stack sets. It packages the
+artifact as appropriate to the resource type (e.g. if zipping is required as for Lambda Function resources). Folders will be
+automatically zipped.
+
+Nested stacks are supported. The resource name name of the nested stack is used to construct the path.
+
+S3 key limitations of 1024 bytes apply, so be sure to avoid excessively long resource and/or file names.
+
+## Uploaded Artifact S3 Key Structure
+### Template Files
+```
+<prefix>/<nested paths (if any)>/<template file name>/<256 bit file hash>/<template file name>
+s3Prefix/template.yml/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f246e90a7c444ee25016e29d/template.yml - base or non-nested template
+s3Prefix/_nestedStack1/_nestedNestedStack1/template.yml/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f246e90a7c444ee25016e29d/template.yml - nested template
+```
+
+### Non-Template Files
+```
+<prefix>/<nested paths (if any)>/<resource service>/<resource service type>/<file or directory name>/<256 bit file hash>/<file or zipped directory name>
+s3Prefix/lambda/function/index.js/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f246e90a7c444ee25016e29d/index.js.zip - file in non-nested template
+s3Prefix/lambda/function/codeDirectory/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f246e90a7c444ee25016e29d/codeDirectory.zip - directory in non-nested template
+s3Prefix/_nestedStack1/_nestedNestedStack1/lambda/function/codeDirectory/0ff5ef46180f4430eaa816fb239b4f3fc4c06db8f246e90a7c444ee25016e29d/codeDirectory.zip - file in nested template
+```
+
+# 
 
 # Contributing
 I welcome pull requests, especially for bugfixes, and issue submissions.
