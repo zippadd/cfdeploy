@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Test Stack Sets"
+###Resources###
+Resources: 
+  DummyNestedStack:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      NotTemplateURL: ./template2.yml

@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Test Stack Sets"
+###Resources###
+Resources: 
+  DummyFunction:
+    Properties:
+      FunctionName: test-stack-sets-lambda
+      Handler: index.handler
+      Runtime: nodejs10.x
+      Code: ./packages/dummyFunction
+      Description: Dummy function to test deployment
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt BasicExecRole.Arn
+      TracingConfig:
+        Mode: Active

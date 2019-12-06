@@ -1,10 +1,10 @@
-const AWS = require('aws-sdk')
 const yaml = require('js-yaml')
 const fs = require('fs-extra')
 const path = require('path')
+const { getAWSCurrentAccountId } = require('./awsUtils.js')
 
 const getSettings = async (filePath = 'cfdeploy.yml') => {
-  const absFilePath = path.join(process.cwd(), filePath)
+  const absFilePath = path.isAbsolute(filePath) ? filePath : path.join(process.cwd(), filePath)
   const file = await fs.readFile(absFilePath, 'utf-8')
   let yamlDoc
   try {
@@ -23,8 +23,10 @@ const getSettings = async (filePath = 'cfdeploy.yml') => {
       type,
       name,
       templatePath = 'template.yml',
-      s3Bucket,
-      s3Key: s3Prefix = '',
+      adminS3Bucket,
+      adminS3Prefix = '',
+      targetsS3BucketBase,
+      targetsS3Prefix = '',
       targets
     } = deployment
 
@@ -36,14 +38,17 @@ const getSettings = async (filePath = 'cfdeploy.yml') => {
       throw new Error('Name is missing from one of the deployments')
     }
 
-    if (!s3Bucket) {
-      throw new Error('S3 bucket name is missing from one of the deployments')
+    if (!adminS3Bucket) {
+      throw new Error('Admin S3 bucket name is missing from one of the deployments')
+    }
+
+    if (!targetsS3BucketBase) {
+      throw new Error('Targets S3 bucket base is missing from one of the deployments')
     }
 
     const duplicateTargetsError = new Error('Duplicate account ids specified in targets for one of the deployments')
 
-    const sts = new AWS.STS({ apiVersion: '2011-06-15' })
-    const { Account: defaultAccountId } = await sts.getCallerIdentity({}).promise()
+    const defaultAccountId = await getAWSCurrentAccountId()
     if (targets.default) {
       if (targets[defaultAccountId]) {
         throw duplicateTargetsError
@@ -53,7 +58,10 @@ const getSettings = async (filePath = 'cfdeploy.yml') => {
     }
 
     deployment.templatePath = path.join(path.dirname(absFilePath), templatePath)
-    deployment.s3Prefix = s3Prefix
+    deployment.adminS3Bucket = adminS3Bucket
+    deployment.adminS3Prefix = adminS3Prefix
+    deployment.targetsS3BucketBase = targetsS3BucketBase
+    deployment.targetsS3Prefix = targetsS3Prefix
     deployment.targets = targets
   }
 

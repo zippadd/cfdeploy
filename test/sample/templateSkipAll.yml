@@ -37,14 +37,23 @@ Resources:
     Type: "AWS::ApiGateway::RestApi"
     Properties:
       Name: test-stack-sets-api
-      BodyS3Location: ./packages/apigAPI/dummy.json
+  DummyAPIGAPI2:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: test-stack-sets-api
+      BodyS3Location: {
+        Bucket: dummybucket,
+        Key: dummykey
+      }
   DummyFunction:
     Type: "AWS::Lambda::Function"
     Properties:
       FunctionName: test-stack-sets-lambda
       Handler: index.handler
       Runtime: nodejs10.x
-      Code: ./packages/dummyFunction
+      Code:
+        S3Bucket: dummybucket
+        S3Key: dummykey
       Description: Dummy function to test deployment
       MemorySize: 128
       Timeout: 10
@@ -56,26 +65,29 @@ Resources:
     Properties:
       AuthenticationType: AWS_IAM
       Name: test-stack-sets-gql-api
-  DummyAppSyncGQLDataSource:
-    Type: "AWS::AppSync::DataSource"
-    Properties:
-      ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
-      Name: dummyDataSource
-      Type: NONE
   DummyAppSyncGQLSchema:
     Type: "AWS::AppSync::GraphQLSchema"
     Properties:
       ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
-      DefinitionS3Location: ./packages/gql/schema.graphql
+  DummyAppSyncGQLSchema2:
+    Type: "AWS::AppSync::GraphQLSchema"
+    Properties:
+      ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
+      DefinitionS3Location: s3://dummybucket/gql/schema.graphql
   DummyAppSyncGQLResolver:
     Type: "AWS::AppSync::Resolver"
     Properties:
       ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
-      DataSourceName: !GetAtt DummyAppSyncGQLDataSource.Name
       FieldName: testStackSets
       TypeName: Query
-      RequestMappingTemplateS3Location: ./packages/gql/req.vtl
-      ResponseMappingTemplateS3Location: ./packages/gql/res.vtl
+      RequestMappingTemplateS3Location: s3://dummybucket/gql/req.vtl
+  DummyAppSyncGQLResolver2:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
+      FieldName: testStackSets
+      TypeName: Query
+      ResponseMappingTemplateS3Location: s3://dummybucket/gql/res.vtl
   DummyEBSKApp:
     Type: "AWS::ElasticBeanstalk::Application"
     Properties:
@@ -84,15 +96,22 @@ Resources:
     Type: "AWS::ElasticBeanstalk::ApplicationVersion"
     Properties:
       ApplicationName: !Ref DummyEBSKApp
-      SourceBundle: ./packages/dummyFunction
+      SourceBundle:
+        S3Bucket: dummybucket
+        S3Key: dummykey
   DummyNestedStack:
     Type: "AWS::CloudFormation::Stack"
     Properties:
-      TemplateURL: ./template2.yml
+      TemplateURL: https://dummybucket.s3.amazonaws.com/dummykey/template.yml
   DummyGlueJob:
     Type: "AWS::Glue::Job"
     Properties:
       Command:
-        Name: pythonshell
-        ScriptLocation: ./packages/gluejob/dummy.py
+        NotScriptLocation: ./packages/gluejob/dummy.py
+      Role: !GetAtt GlueRole.Arn
+  DummyGlueJob2:
+    Type: "AWS::Glue::Job"
+    Properties:
+      Command:
+        ScriptLocation: s3://dummybucket/dummykey/dummy.py
       Role: !GetAtt GlueRole.Arn

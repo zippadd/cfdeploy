@@ -9,15 +9,17 @@ const templateName = 'template.yml'
 describe('Test cfdeploy main', () => {
   beforeEach(() => {
     jest.resetModules()
-    jest.doMock('./getSettings', () => {
+    jest.doMock('./utilities/getSettings', () => {
       return {
         getSettings: async () => {
           return [{
             type,
             name,
             templatePath: path.join(process.cwd(), templateName),
-            s3Bucket: 'test-stacksets-us-east-1',
-            s3Prefix: '',
+            adminS3Bucket: 'test-stacksets-admin',
+            adminS3Prefix: '',
+            targetsS3BucketBase: 'test-stacksets',
+            targetsS3Prefix: '',
             targets: {
               [mockAWSAcctNum]: {
                 'us-east-1': true,
