@@ -13,13 +13,7 @@ const archiveFilePath = async (filePath, format = archiveFormats.zip) => {
   const isDir = (await fs.stat(filePath)).isDirectory()
   const { dir } = path.parse(filePath)
 
-  try {
-    await fs.mkdir(path.join(os.tmpdir(), dir), { recursive: true })
-  } catch (err) {
-    if (!err.message.includes('EEXIST')) {
-      throw err
-    }
-  }
+  await fs.mkdir(path.join(os.tmpdir(), dir), { recursive: true })
 
   return new Promise((resolve, reject) => {
     const tmpFilePath = path.join(os.tmpdir(), `${filePath}.zip`)
