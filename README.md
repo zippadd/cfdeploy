@@ -14,6 +14,8 @@ Uploads the referenced Cloudformation in the cfdeploy file to the given bucket a
 * For creations, it will create stackset instances per specified targets (AWS account/region)
 * For updates, it will update existing stackset instances first and then remove/create stackset instances per specified targets (AWS account/region)
 
+The stack set itself is created in the account that it is being run under in the region specified in the AWS config or us-east-1 if a region is not specified.
+
 # Installation
 ```bash
 npm install -g cfdeployer
@@ -28,12 +30,14 @@ cfdeploy <options>
 |-----------------------|---------------------------|----------------------|
 | -f, --file <filePath> | Path to the cfdeploy file | cfdeploy.yml         |
 
-# CFDeploy File Structure
+# CFDeploy File Structure and Notes
 * Languages
   * Only YAML is supported. 
 * File Naming / Location
   * cfdeploy.yml, placed in the root (like e.g. .travis.yml) for easiest use and recognition
   * Can be named anything and placed wherever, but must specify file option (see above)
+* S3 bucket base just specifies the base. The full bucket name is as follows:
+  * ```<s3 bucket base>-<region>-<AWS account number>
 * Cloudformation Template Restrictions
   * Template must be YAML
 
@@ -43,8 +47,10 @@ deployments:
     type: stackSet
     name: <name of stackset/deployment>
     templatePath: <path to Cloudformation template>
-    s3Bucket: <S3 bucket to upload Cloudformation template to>
-    s3Prefix: <Prefix for the uploaded template (with or without trailing slash) e.g. thisIs/aPrefix/ >
+    adminS3Bucket: <S3 bucket name for the administrator account. The base template is placed here>
+    adminS3Prefix: <S3 prefix (with or without trailing slash) in the adminS3Bucket where the uploaded base template is placed. e.g. thisIs/aPrefix/>
+    targetsS3BucketBase: <S3 bucket base used to create the full bucket names where the base template artifacts are uploaded to>
+    targetsS3Prefix: <S3 prefix (with or without trailing slash) in the targets S3 Buckets where the template artifacts are placed. e.g. thisIs/aPrefix/ >
     targets:
       <AWS account number or "default" for current user's AWS account number>:
         <region 1>: true
@@ -54,6 +60,9 @@ deployments:
   -
     ...Additional deployments as needed
 ```
+
+Breaking change from 1.x to 2.x: s3Bucket and s3Prefix have been removed and replaced with the adminS3Bucket/targetsS3BucketBase
+and adminS3Prefix/targetsS3Prefix settings
 
 # Automatic Artifact Upload
 Similar to the Cloudformation CI [package command](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/package.html),

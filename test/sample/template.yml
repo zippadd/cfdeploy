@@ -56,6 +56,12 @@ Resources:
     Properties:
       AuthenticationType: AWS_IAM
       Name: test-stack-sets-gql-api
+  DummyAppSyncGQLDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
+      Name: dummyDataSource
+      Type: NONE
   DummyAppSyncGQLSchema:
     Type: "AWS::AppSync::GraphQLSchema"
     Properties:
@@ -65,6 +71,7 @@ Resources:
     Type: "AWS::AppSync::Resolver"
     Properties:
       ApiId: !GetAtt DummyAppSyncGQLAPI.ApiId
+      DataSourceName: !GetAtt DummyAppSyncGQLDataSource.Name
       FieldName: testStackSets
       TypeName: Query
       RequestMappingTemplateS3Location: ./packages/gql/req.vtl
@@ -86,5 +93,6 @@ Resources:
     Type: "AWS::Glue::Job"
     Properties:
       Command:
+        Name: pythonshell
         ScriptLocation: ./packages/gluejob/dummy.py
       Role: !GetAtt GlueRole.Arn

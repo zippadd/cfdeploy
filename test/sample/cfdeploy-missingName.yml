@@ -2,8 +2,8 @@ deployments:
   - 
     type: stackSet
     templatePath: 'template.yml'
-    s3Bucket: 'test-stacksets-us-east-1'
-    s3Prefix: ''
+    adminS3Bucket: 'test-stacksets-admin'
+    targetsS3BucketBase: 'test-stacksets'
     targets:
       default:
         us-east-1: true

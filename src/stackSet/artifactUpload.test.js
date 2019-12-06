@@ -3,8 +3,15 @@ const path = require('path')
 const AWS = require('aws-sdk-mock')
 const AWS_SDK = require('aws-sdk')
 AWS.setSDKInstance(AWS_SDK)
-const { getCloudformationYAMLSchema } = require('../utilities/getCloudformationYAMLSchema.js')
-const stackSetName = 'test-stacksets-us-east-1'
+const { getTagClasses } = require('../utilities/getCloudformationYAMLSchema.js')
+
+const tagClasses = getTagClasses()
+
+const stackSetName = 'test-stacksets'
+const stackSetBucket = `${stackSetName}-admin`
+const bucketName = `${stackSetName}-\${AWS::Region}-\${AWS::AccountId}`
+const bucketSub = new tagClasses.Sub('!Sub', bucketName)
+
 const exampleAPIGHash = '58a4d68a85b629f9c6998235b712bfc92e5c263ad55ad85cd78bbd50b230c734'
 const exampleReqMapHash = '5102f6c4ea402366aa8ce156a50ab5af28b4c452a80b423442b18b312e7bacb1'
 const exampleResMapHash = 'a0e14b00adaee553932d81d51006af614e2cc3673d190c17c1c7776ae2046a16'
@@ -13,12 +20,6 @@ const exampleEBSKVerHash = '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b313
 const exampleLambdaHash = '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
 const exampleGlueJobHash = '69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9'
 const exampleLambdaHash2 = '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
-
-const tagClasses = {}
-for (const explicitType of getCloudformationYAMLSchema().explicit) {
-  const name = explicitType.tag.replace('!', '')
-  tagClasses[name] = explicitType.instanceOf
-}
 
 const getTemplateObject = (prefix) => {
   return {
@@ -67,7 +68,7 @@ const getTemplateObject = (prefix) => {
         Properties: {
           Name: 'test-stack-sets-api',
           BodyS3Location: {
-            Bucket: stackSetName,
+            Bucket: bucketSub,
             Key: `${prefix ? `${prefix}/` : ''}apigateway/restapi/dummyapigapi/dummy.json/${exampleAPIGHash}/dummy.json`
           }
         },
@@ -80,20 +81,29 @@ const getTemplateObject = (prefix) => {
         },
         Type: 'AWS::AppSync::GraphQLApi'
       },
+      DummyAppSyncGQLDataSource: {
+        Properties: {
+          ApiId: new tagClasses.GetAtt('!GetAtt', 'DummyAppSyncGQLAPI.ApiId'),
+          Name: 'dummyDataSource',
+          Type: 'NONE'
+        },
+        Type: 'AWS::AppSync::DataSource'
+      },
       DummyAppSyncGQLResolver: {
         Properties: {
           ApiId: new tagClasses.GetAtt('!GetAtt', 'DummyAppSyncGQLAPI.ApiId'),
+          DataSourceName: new tagClasses.GetAtt('!GetAtt', 'DummyAppSyncGQLDataSource.Name'),
           FieldName: 'testStackSets',
           TypeName: 'Query',
-          RequestMappingTemplateS3Location: `s3://${stackSetName}/${prefix ? `${prefix}/` : ''}appsync/resolver/dummyappsyncgqlresolver/req.vtl/${exampleReqMapHash}/req.vtl`,
-          ResponseMappingTemplateS3Location: `s3://${stackSetName}/${prefix ? `${prefix}/` : ''}appsync/resolver/dummyappsyncgqlresolver/res.vtl/${exampleResMapHash}/res.vtl`
+          RequestMappingTemplateS3Location: new tagClasses.Sub('!Sub', `s3://${bucketName}/${prefix ? `${prefix}/` : ''}appsync/resolver/dummyappsyncgqlresolver/req.vtl/${exampleReqMapHash}/req.vtl`),
+          ResponseMappingTemplateS3Location: new tagClasses.Sub('!Sub', `s3://${bucketName}/${prefix ? `${prefix}/` : ''}appsync/resolver/dummyappsyncgqlresolver/res.vtl/${exampleResMapHash}/res.vtl`)
         },
         Type: 'AWS::AppSync::Resolver'
       },
       DummyAppSyncGQLSchema: {
         Properties: {
           ApiId: new tagClasses.GetAtt('!GetAtt', 'DummyAppSyncGQLAPI.ApiId'),
-          DefinitionS3Location: `s3://${stackSetName}/${prefix ? `${prefix}/` : ''}appsync/graphqlschema/dummyappsyncgqlschema/schema.graphql/${exampleGQLSchemaHash}/schema.graphql`
+          DefinitionS3Location: new tagClasses.Sub('!Sub', `s3://${bucketName}/${prefix ? `${prefix}/` : ''}appsync/graphqlschema/dummyappsyncgqlschema/schema.graphql/${exampleGQLSchemaHash}/schema.graphql`)
         },
         Type: 'AWS::AppSync::GraphQLSchema'
       },
@@ -107,7 +117,7 @@ const getTemplateObject = (prefix) => {
         Properties: {
           ApplicationName: new tagClasses.Ref('!Ref', 'DummyEBSKApp'),
           SourceBundle: {
-            S3Bucket: stackSetName,
+            S3Bucket: bucketSub,
             S3Key: `${prefix ? `${prefix}/` : ''}elasticbeanstalk/applicationversion/dummyebskappversion/dummyFunction/${exampleEBSKVerHash}/dummyFunction.zip`
           }
         },
@@ -116,7 +126,7 @@ const getTemplateObject = (prefix) => {
       DummyFunction: {
         Properties: {
           Code: {
-            S3Bucket: stackSetName,
+            S3Bucket: bucketSub,
             S3Key: `${prefix ? `${prefix}/` : ''}lambda/function/dummyfunction/dummyFunction/${exampleLambdaHash}/dummyFunction.zip`
           },
           Description: 'Dummy function to test deployment',
@@ -135,7 +145,8 @@ const getTemplateObject = (prefix) => {
       DummyGlueJob: {
         Properties: {
           Command: {
-            ScriptLocation: `s3://${stackSetName}/${prefix ? `${prefix}/` : ''}glue/job/dummygluejob/dummy.py/${exampleGlueJobHash}/dummy.py`
+            Name: 'pythonshell',
+            ScriptLocation: new tagClasses.Sub('!Sub', `s3://${bucketName}/${prefix ? `${prefix}/` : ''}glue/job/dummygluejob/dummy.py/${exampleGlueJobHash}/dummy.py`)
           },
           Role: new tagClasses.GetAtt('!GetAtt', 'GlueRole.Arn')
         },
@@ -143,7 +154,7 @@ const getTemplateObject = (prefix) => {
       },
       DummyNestedStack: {
         Properties: {
-          TemplateURL: `https://${stackSetName}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}_dummynestedstack/template2.yml`
+          TemplateURL: new tagClasses.Sub('!Sub', `https://${bucketName}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}_dummynestedstack/template2.yml`)
         },
         Type: 'AWS::CloudFormation::Stack'
       },
@@ -230,7 +241,7 @@ const getNestedTemplateObject = (prefix) => {
       DummyFunction2: {
         Properties: {
           Code: {
-            S3Bucket: 'test-stacksets-us-east-1',
+            S3Bucket: bucketSub,
             S3Key: `${prefix ? `${prefix}/` : ''}_dummynestedstack/lambda/function/dummyfunction2/dummyFunction/${exampleLambdaHash2}/dummyFunction.zip`
           },
           Description: 'Dummy function to test deployment',
@@ -443,6 +454,22 @@ const getSkippedTemplateObject = (prefix) => {
   }
 }
 
+const getPsuedoRandBetween = (minNum, maxNum) => {
+  return Math.floor(Math.random() * (maxNum - minNum + 1) + minNum)
+}
+
+/* AWS Account numbers are 12 digits so set a corresponding max and min */
+const AWS_ACCT_NUM_MAX = 999999999999
+const AWS_ACCT_NUM_MIN = /* 00000000000 */1
+const mockAWSAcctNum = getPsuedoRandBetween(AWS_ACCT_NUM_MIN, AWS_ACCT_NUM_MAX)
+
+const targets = {
+  [mockAWSAcctNum]: {
+    'us-east-1': true,
+    'us-west-2': true
+  }
+}
+
 AWS.mock('S3', 'upload', jest.fn((params, callback) => {
   const {
     Bucket,
@@ -467,9 +494,9 @@ describe('Artifact Upload', () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'template.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).resolves.toEqual({
-      url: `https://${stackSetName}.s3.amazonaws.com/${templatePath}`,
-      s3URL: `s3://${stackSetName}/${templatePath}`,
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templatePath}`,
+      s3URL: `s3://${stackSetBucket}/${templatePath}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject()
@@ -484,9 +511,9 @@ describe('Artifact Upload', () => {
     expect.assertions(1)
     const templateName = 'template.yml'
     const templatePath = path.join(process.cwd(), templateName)
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).resolves.toEqual({
-      url: `https://${stackSetName}.s3.amazonaws.com/${templateName}`,
-      s3URL: `s3://${stackSetName}/${templateName}`,
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templateName}`,
+      s3URL: `s3://${stackSetBucket}/${templateName}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject()
@@ -501,9 +528,9 @@ describe('Artifact Upload', () => {
     expect.assertions(1)
     const templatePath = 'template.yml'
     const prefix = 'prefixed'
-    const result = await expect(artifactUpload(templatePath, stackSetName, prefix)).resolves.toEqual({
-      url: `https://${stackSetName}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}${templatePath}`,
-      s3URL: `s3://${stackSetName}/${prefix ? `${prefix}/` : ''}${templatePath}`,
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, prefix, stackSetName, prefix, targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}${templatePath}`,
+      s3URL: `s3://${stackSetBucket}/${prefix ? `${prefix}/` : ''}${templatePath}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject(prefix)
@@ -517,9 +544,9 @@ describe('Artifact Upload', () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'templateSkipAll.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).resolves.toEqual({
-      url: `https://${stackSetName}.s3.amazonaws.com/${templatePath}`,
-      s3URL: `s3://${stackSetName}/${templatePath}`,
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templatePath}`,
+      s3URL: `s3://${stackSetBucket}/${templatePath}`,
       yamlDocMap: {
         doc: getSkippedTemplateObject()
       }
@@ -530,42 +557,42 @@ describe('Artifact Upload', () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'templateNoType.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).rejects.toThrow()
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).rejects.toThrow()
     return result
   })
   test('Gets an error when deploying a template without Properties for a resource', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'templateNoProperties.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).rejects.toThrow()
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).rejects.toThrow()
     return result
   })
   test('Gets an error when deploying a template without Code property for Lambda', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'templateNoLambdaCode.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).rejects.toThrow()
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).rejects.toThrow()
     return result
   })
   test('Gets an error when deploying a template without SourceBundle property for Elastic Beanstalk', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'templateNoEBSKBundle.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).rejects.toThrow()
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).rejects.toThrow()
     return result
   })
   test('Gets an error when deploying a template without TemplateURL property for Lambda', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'templateNoStackTemplate.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).rejects.toThrow()
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).rejects.toThrow()
     return result
   })
   test('Gets an error when deploying a malformed template', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templatePath = 'template-malformed.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetName, '')).rejects.toThrow()
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).rejects.toThrow()
     return result
   })
 })

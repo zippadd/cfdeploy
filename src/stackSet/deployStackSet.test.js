@@ -1,5 +1,4 @@
 /* eslint-env jest */
-/* const uuidv4 = require('uuid/v4') */
 
 const getPsuedoRandBetween = (minNum, maxNum) => {
   return Math.floor(Math.random() * (maxNum - minNum + 1) + minNum)
@@ -16,8 +15,10 @@ const deployment = {
   type,
   name,
   templatePath: 'template.yml',
-  s3Bucket: 'test-stacksets-us-east-1',
-  s3Key: '',
+  adminS3Bucket: 'test-stacksets-admin',
+  adminS3Prefix: '',
+  targetsS3BucketBase: 'test-stacksets',
+  targetsS3Prefix: '',
   targets: {
     [mockAWSAcctNum]: {
       'us-east-1': true,

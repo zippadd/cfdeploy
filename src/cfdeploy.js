@@ -1,4 +1,4 @@
-const { getSettings } = require('./getSettings.js')
+const { getSettings } = require('./utilities/getSettings.js')
 const { deployStackSet } = require('./stackSet/deployStackSet.js')
 const commander = require('commander')
 

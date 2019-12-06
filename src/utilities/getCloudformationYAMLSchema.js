@@ -7,7 +7,14 @@ class CFFunction {
   }
 }
 
+let _cloudformationYAMLSchema
+let _tagClasses
+
 const getCloudformationYAMLSchema = () => {
+  if (_cloudformationYAMLSchema) {
+    return _cloudformationYAMLSchema
+  }
+
   /* Cloudformation Intrinsic Functions
      https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html
   */
@@ -49,9 +56,25 @@ const getCloudformationYAMLSchema = () => {
     )
     yamlTypes.push(yamlType)
   }
-  return yaml.Schema.create(yamlTypes)
+
+  _cloudformationYAMLSchema = yaml.Schema.create(yamlTypes)
+  return _cloudformationYAMLSchema
+}
+
+const getTagClasses = () => {
+  if (_tagClasses) {
+    return _tagClasses
+  }
+
+  _tagClasses = {}
+  for (const explicitType of getCloudformationYAMLSchema().explicit) {
+    const name = explicitType.tag.replace('!', '')
+    _tagClasses[name] = explicitType.instanceOf
+  }
+
+  return _tagClasses
 }
 
 module.exports = {
-  getCloudformationYAMLSchema
+  getCloudformationYAMLSchema, getTagClasses
 }

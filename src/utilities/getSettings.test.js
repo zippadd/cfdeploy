@@ -1,7 +1,4 @@
 /* eslint-env jest */
-const AWS = require('aws-sdk-mock')
-const AWS_SDK = require('aws-sdk')
-AWS.setSDKInstance(AWS_SDK)
 const path = require('path')
 
 const name = 'test-stacksets'
@@ -10,16 +7,14 @@ const mockAWSAcctNum = 123456789012
 const mockAWSAcctNum2 = 111111111111
 const templateName = 'template.yml'
 
-AWS.mock('STS', 'getCallerIdentity', jest.fn((params, callback) => {
-  return callback(null, { Account: mockAWSAcctNum })
-}))
-
 const settings = [{
   type,
   name,
   templatePath: path.join(process.cwd(), templateName),
-  s3Bucket: 'test-stacksets-us-east-1',
-  s3Prefix: '',
+  adminS3Bucket: 'test-stacksets-admin',
+  adminS3Prefix: '',
+  targetsS3BucketBase: 'test-stacksets',
+  targetsS3Prefix: '',
   targets: {
     [mockAWSAcctNum]: {
       'us-east-1': true,
@@ -31,8 +26,10 @@ const settings2 = [{
   type,
   name,
   templatePath: path.join(process.cwd(), templateName),
-  s3Bucket: 'test-stacksets-us-east-1',
-  s3Prefix: '',
+  adminS3Bucket: 'test-stacksets-admin',
+  adminS3Prefix: '',
+  targetsS3BucketBase: 'test-stacksets',
+  targetsS3Prefix: '',
   targets: {
     [mockAWSAcctNum2]: {
       'us-east-1': true,
@@ -42,6 +39,13 @@ const settings2 = [{
 }]
 
 describe('Get Settings', () => {
+  jest.doMock('./awsUtils', () => {
+    return {
+      getAWSCurrentAccountId: async () => {
+        return mockAWSAcctNum
+      }
+    }
+  })
   const { getSettings } = require('./getSettings.js')
   test('Returns sample cfdeploy settings object read from file', () => {
     expect.assertions(1)
@@ -75,9 +79,13 @@ describe('Get Settings', () => {
     expect.assertions(1)
     return expect(getSettings('cfdeploy-missingName.yml')).rejects.toThrow()
   })
-  test('Returns an error when stack name is missing in the config file', () => {
+  test('Returns an error when admin S3 bucket name is missing in the config file', () => {
     expect.assertions(1)
-    return expect(getSettings('cfdeploy-missingS3Bucket.yml')).rejects.toThrow()
+    return expect(getSettings('cfdeploy-missingAdminS3Bucket.yml')).rejects.toThrow()
+  })
+  test('Returns an error when targets S3 bucket base is missing in the config file', () => {
+    expect.assertions(1)
+    return expect(getSettings('cfdeploy-missingTargetsS3BucketBase.yml')).rejects.toThrow()
   })
   test('Returns an error when an unsupported type is present in the config file', () => {
     expect.assertions(1)
