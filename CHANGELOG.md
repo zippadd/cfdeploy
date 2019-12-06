@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactorization of common functions
 - Refactorization of existing functions to work with artifact upload capability
 - CFDeploy YAML format
+- Clarify Node Js requirements
 - Update README and CHANGELOG
 
 ## [1.0.2] - 2019-10-12

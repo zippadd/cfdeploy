@@ -16,6 +16,9 @@ Uploads the referenced Cloudformation in the cfdeploy file to the given bucket a
 
 The stack set itself is created in the account that it is being run under in the region specified in the AWS config or us-east-1 if a region is not specified.
 
+# Requirements
+* NodeJS 10+
+
 # Installation
 ```bash
 npm install -g cfdeployer
