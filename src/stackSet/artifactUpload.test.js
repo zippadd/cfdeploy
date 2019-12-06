@@ -1,5 +1,6 @@
 /* eslint-env jest */
 const path = require('path')
+const crypto = require('crypto')
 const AWS = require('aws-sdk-mock')
 const AWS_SDK = require('aws-sdk')
 AWS.setSDKInstance(AWS_SDK)
@@ -12,14 +13,32 @@ const stackSetBucket = `${stackSetName}-admin`
 const bucketName = `${stackSetName}-\${AWS::Region}-\${AWS::AccountId}`
 const bucketSub = new tagClasses.Sub('!Sub', bucketName)
 
-const exampleAPIGHash = '58a4d68a85b629f9c6998235b712bfc92e5c263ad55ad85cd78bbd50b230c734'
-const exampleReqMapHash = '5102f6c4ea402366aa8ce156a50ab5af28b4c452a80b423442b18b312e7bacb1'
-const exampleResMapHash = 'a0e14b00adaee553932d81d51006af614e2cc3673d190c17c1c7776ae2046a16'
-const exampleGQLSchemaHash = 'e79ff19122806abb64cbabdc4a1c22218081d4985436555c325fbf41577ba55e'
-const exampleEBSKVerHash = '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
-const exampleLambdaHash = '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
-const exampleGlueJobHash = '69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9'
-const exampleLambdaHash2 = '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
+const blake2Support = crypto.getHashes().includes('blake2s256')
+
+const exampleAPIGHash = blake2Support
+  ? '58a4d68a85b629f9c6998235b712bfc92e5c263ad55ad85cd78bbd50b230c734'
+  : '7a4044f03e5a81b584f36f33493b885c12cc56837853ff2243e9105f91d23179'
+const exampleReqMapHash = blake2Support
+  ? '5102f6c4ea402366aa8ce156a50ab5af28b4c452a80b423442b18b312e7bacb1'
+  : '11141313fc2f5b92e8432c22cab4af9aa26a7c019559df311d8c5584a33c6d3f'
+const exampleResMapHash = blake2Support
+  ? 'a0e14b00adaee553932d81d51006af614e2cc3673d190c17c1c7776ae2046a16'
+  : 'ab69f2706d9d99b192e66c6d21e4991121923239858099d329a9a5a8a86ba4f3'
+const exampleGQLSchemaHash = blake2Support
+  ? 'e79ff19122806abb64cbabdc4a1c22218081d4985436555c325fbf41577ba55e'
+  : '0187f288c108c1c9ba0d441e8efaa4af69622f52d7078b92049cb988e0e0d0d1'
+const exampleEBSKVerHash = blake2Support
+  ? '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
+  : 'b47b7a276a69c6b81e0ade141fc2e3f42925d0c26eaba1742600623f134e196f'
+const exampleLambdaHash = blake2Support
+  ? '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
+  : 'b47b7a276a69c6b81e0ade141fc2e3f42925d0c26eaba1742600623f134e196f'
+const exampleGlueJobHash = blake2Support
+  ? '69217a3079908094e11121d042354a7c1f55b6482ca1a51e1b250dfd1ed0eef9'
+  : 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+const exampleLambdaHash2 = blake2Support
+  ? '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
+  : 'b47b7a276a69c6b81e0ade141fc2e3f42925d0c26eaba1742600623f134e196f'
 
 const getTemplateObject = (prefix) => {
   return {

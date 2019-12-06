@@ -4,7 +4,6 @@ const fs = require('fs-extra')
 const getHashAlgo = () => {
   const preferredHashes = [
     'blake2s256',
-    'sha3-256',
     'sha256'
   ]
 
