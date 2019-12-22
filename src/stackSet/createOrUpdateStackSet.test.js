@@ -2,10 +2,13 @@
 const uuidv4 = require('uuid/v4')
 const AWS = require('aws-sdk-mock')
 const AWS_SDK = require('aws-sdk')
+const path = require('path')
 AWS.setSDKInstance(AWS_SDK)
 
 const stackSetName = 'test-stacksets'
-const rootS3TemplatePath = 'https://test-stacksets-us-east-1.s3.amazonaws.com/template.yml'
+const templateFileName = 'template.yml'
+const absTemplatePath = path.join(process.cwd(), templateFileName)
+const rootS3TemplatePath = `https://test-stacksets-us-east-1.s3.amazonaws.com/${templateFileName}`
 
 const createStackSetMock = jest.fn((params, callback) => {
   return callback(null, {})
@@ -40,6 +43,34 @@ describe('Create/Update Stack Set', () => {
     AWS.mock('CloudFormation', 'updateStackSet', updateStackSetMock)
     expect.assertions(1)
     const result = await expect(createOrUpdateStackSet(stackSetName, rootS3TemplatePath)).resolves.toEqual() &&
+      expect(updateStackSetMock).toHaveBeenCalledTimes(1) &&
+      expect(createStackSetMock).toHaveBeenCalledTimes(1)
+    AWS.restore('CloudFormation', 'updateStackSet')
+    return result
+  })
+  test('Returns when creating a new stack set when templateURL is not a URL, but a relative path', async () => {
+    const updateStackSetMock = jest.fn((params, callback) => {
+      const stackSetNotFound = new Error()
+      stackSetNotFound.code = 'StackSetNotFoundException'
+      return callback(stackSetNotFound, null)
+    })
+    AWS.mock('CloudFormation', 'updateStackSet', updateStackSetMock)
+    expect.assertions(1)
+    const result = await expect(createOrUpdateStackSet(stackSetName, templateFileName)).resolves.toEqual() &&
+      expect(updateStackSetMock).toHaveBeenCalledTimes(1) &&
+      expect(createStackSetMock).toHaveBeenCalledTimes(1)
+    AWS.restore('CloudFormation', 'updateStackSet')
+    return result
+  })
+  test('Returns when creating a new stack set when templateURL is not a URL, but a abs path', async () => {
+    const updateStackSetMock = jest.fn((params, callback) => {
+      const stackSetNotFound = new Error()
+      stackSetNotFound.code = 'StackSetNotFoundException'
+      return callback(stackSetNotFound, null)
+    })
+    AWS.mock('CloudFormation', 'updateStackSet', updateStackSetMock)
+    expect.assertions(1)
+    const result = await expect(createOrUpdateStackSet(stackSetName, absTemplatePath)).resolves.toEqual() &&
       expect(updateStackSetMock).toHaveBeenCalledTimes(1) &&
       expect(createStackSetMock).toHaveBeenCalledTimes(1)
     AWS.restore('CloudFormation', 'updateStackSet')

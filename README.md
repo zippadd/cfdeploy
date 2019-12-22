@@ -29,9 +29,10 @@ npm install -g cfdeployer
 cfdeploy <options>
 ```
 
-| Option                | Description               | Default (if omitted) |
-|-----------------------|---------------------------|----------------------|
-| -f, --file <filePath> | Path to the cfdeploy file | cfdeploy.yml         |
+| Option                | Description                                                                         | Default (if omitted) |
+|-----------------------|-------------------------------------------------------------------------------------|----------------------|
+| -f, --file <filePath> | Path to the cfdeploy file                                                           | cfdeploy.yml         |
+| -d, --direct          | Skip artifact processing and directly use the base template body vs uploading to S3 | Normal Behavior      |
 
 # CFDeploy File Structure and Notes
 * Languages

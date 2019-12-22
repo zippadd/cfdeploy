@@ -12,7 +12,7 @@ if (!AWS.config.region) {
   AWS.config.update({ region: defaultRegion })
 }
 
-const deployStackSet = async (deployment) => {
+const deployStackSet = async (deployment, opts) => {
   const {
     name,
     type,
@@ -28,7 +28,14 @@ const deployStackSet = async (deployment) => {
     throw new Error('Requested deploying a StackSet, but type is not stackSet')
   }
 
-  const { url: templateURL } = await artifactUpload(templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets)
+  let templateURL
+
+  if (opts.direct) {
+    templateURL = templatePath
+  } else {
+    const { url } = await artifactUpload(templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets)
+    templateURL = url
+  }
 
   /* Update/create Stack Set */
   await createOrUpdateStackSet(name, templateURL)
