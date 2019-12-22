@@ -1,12 +1,26 @@
 const AWS = require('aws-sdk')
+const fs = require('fs-extra')
+const path = require('path')
 const { waitForStackSetOperationsComplete } = require('./waitForStackSetOperationsComplete.js')
+const { isURL } = require('../utilities/isURL.js')
 
 const createOrUpdateStackSet = async (stackSetName, templateURL) => {
   const cloudformation = new AWS.CloudFormation({ apiVersion: '2010-05-15' })
+
+  let TemplateURL
+  let TemplateBody
+  if (isURL(templateURL)) {
+    TemplateURL = templateURL
+  } else {
+    const absFilePath = path.isAbsolute(templateURL) ? templateURL : path.join(process.cwd(), templateURL)
+    TemplateBody = await fs.readFile(absFilePath, 'utf-8')
+  }
+
   const stackSetParams = {
     StackSetName: stackSetName,
     Capabilities: ['CAPABILITY_NAMED_IAM'],
-    TemplateURL: templateURL
+    ...TemplateURL ? { TemplateURL } : {}, // Only set TemplateURL if is truthy
+    ...TemplateBody ? { TemplateBody } : {} // Only set TemplateBody if is truthy
   }
   try {
     const { OperationId } = await cloudformation.updateStackSet(stackSetParams).promise()

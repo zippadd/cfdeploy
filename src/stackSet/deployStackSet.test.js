@@ -26,6 +26,7 @@ const deployment = {
     }
   }
 }
+const opts = {}
 
 describe('Deploy Stack Set Flow', () => {
   beforeEach(() => {
@@ -65,7 +66,20 @@ describe('Deploy Stack Set Flow', () => {
     })
     const { deployStackSet } = require('./deployStackSet.js')
     expect.assertions(1)
-    return expect(deployStackSet(deployment)).resolves.toEqual()
+    return expect(deployStackSet(deployment, opts)).resolves.toEqual()
+  })
+  test('Returns when attempting a deployment without region set in direct mode', async () => {
+    jest.doMock('aws-sdk', () => {
+      return {
+        config: {
+          update: () => {},
+          region: ''
+        }
+      }
+    })
+    const { deployStackSet } = require('./deployStackSet.js')
+    expect.assertions(1)
+    return expect(deployStackSet(deployment, { direct: true })).resolves.toEqual()
   })
   test('Returns when attempting a deployment with region set', async () => {
     jest.doMock('aws-sdk', () => {
@@ -78,13 +92,13 @@ describe('Deploy Stack Set Flow', () => {
     })
     const { deployStackSet } = require('./deployStackSet.js')
     expect.assertions(1)
-    return expect(deployStackSet(deployment)).resolves.toEqual()
+    return expect(deployStackSet(deployment, opts)).resolves.toEqual()
   })
   test('Throws an error when trying to deploy a non-stackSet type', async () => {
     const { deployStackSet } = require('./deployStackSet.js')
     expect.assertions(1)
     const badDeployment = Object.assign({}, deployment)
     badDeployment.type = 'notValid'
-    return expect(deployStackSet(badDeployment)).rejects.toThrow()
+    return expect(deployStackSet(badDeployment, opts)).rejects.toThrow()
   })
 })

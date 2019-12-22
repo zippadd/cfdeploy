@@ -2,25 +2,10 @@ const yaml = require('js-yaml')
 const fs = require('fs-extra')
 const path = require('path')
 const os = require('os')
-const { URL } = require('url')
+const { isURL, isS3URL } = require('../utilities/isURL.js')
 const { uploadS3, modes } = require('../utilities/uploadS3.js')
 const { getCloudformationYAMLSchema, getTagClasses } = require('../utilities/getCloudformationYAMLSchema.js')
 // const { getAWSCurrentAccountId, getAWSCurrentOrDefaultRegion } = require('../utilities/awsUtils.js')
-
-const isS3URL = (urlOrPath) => {
-  return urlOrPath.match(/^s3:\/\/.*/)
-}
-
-const isURL = (urlOrPath) => {
-  try {
-    const url = new URL(urlOrPath)
-    url.toString() // Include to silence warning and make sure not null
-  } catch (err) {
-    return false
-  }
-
-  return true
-}
 
 const uploadToS3Targets = async (targets, localPath, s3BucketBase, s3Prefix, options) => {
   const s3UploadPromises = []
