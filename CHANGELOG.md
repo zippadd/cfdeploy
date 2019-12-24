@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2019-12-24
+### Added
+- Added environment support
+
 ## [2.0.1] - 2019-12-21
 ### Added
 - Added direct option

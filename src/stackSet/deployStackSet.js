@@ -14,7 +14,6 @@ if (!AWS.config.region) {
 
 const deployStackSet = async (deployment, opts) => {
   const {
-    name,
     type,
     templatePath,
     adminS3Bucket,
@@ -23,6 +22,11 @@ const deployStackSet = async (deployment, opts) => {
     targetsS3Prefix,
     targets
   } = deployment
+  let { name } = deployment
+  const {
+    direct,
+    environment
+  } = opts
 
   if (type !== 'stackSet') {
     throw new Error('Requested deploying a StackSet, but type is not stackSet')
@@ -30,15 +34,26 @@ const deployStackSet = async (deployment, opts) => {
 
   let templateURL
 
-  if (opts.direct) {
+  if (direct) {
     templateURL = templatePath
   } else {
     const { url } = await artifactUpload(templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets)
     templateURL = url
   }
 
+  const parameters = []
+
+  if (environment) {
+    name = `${name}-${environment}`
+    parameters.push({
+      ParameterKey: 'Environment',
+      ParameterValue: environment,
+      UsePreviousValue: false
+    })
+  }
+
   /* Update/create Stack Set */
-  await createOrUpdateStackSet(name, templateURL)
+  await createOrUpdateStackSet(name, templateURL, parameters)
 
   /* Check and make stack set instance adjustments if needed */
   await adjustInstances(name, targets)

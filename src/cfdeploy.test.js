@@ -65,6 +65,18 @@ describe('Test cfdeploy main', () => {
     expect.assertions(1)
     return expect(cfdeploy()).resolves.toEqual()
   })
+  test('Returns a resolved promise when deployments are complete without a file path specified with environment specified', async () => {
+    jest.doMock('./stackSet/deployStackSet', () => {
+      return {
+        deployStackSet: async () => {}
+      }
+    })
+    process.argv.push('--environment')
+    process.argv.push('prod')
+    const { cfdeploy } = require('./cfdeploy.js')
+    expect.assertions(1)
+    return expect(cfdeploy()).resolves.toEqual()
+  })
   test('Returns a rejected promise when a deployment fails', async () => {
     jest.doMock('./stackSet/deployStackSet', () => {
       return {

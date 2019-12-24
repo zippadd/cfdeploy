@@ -6,12 +6,14 @@ const cfdeploy = async () => {
   const program = new commander.Command()
   program
     .option('-f, --file <filePath>', 'path to cfdeploy file')
-    .option('-d, --direct', 'Skip artifact processing and directly use base template body vs uploading to S3')
+    .option('-d, --direct', 'skip artifact processing and directly use base template body vs uploading to S3')
+    .option('-e, --environment <environmentName>', 'specifies an environment string to pass as a deployment parameter')
     .allowUnknownOption(true)
 
   program.parse(process.argv)
   const filePath = program.file ? program.file.trim() : 'cfdeploy.yml'
   const opts = program.opts()
+  console.log(opts)
 
   const deployments = await getSettings(filePath)
   const deploymentPromises = []

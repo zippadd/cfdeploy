@@ -81,6 +81,19 @@ describe('Deploy Stack Set Flow', () => {
     expect.assertions(1)
     return expect(deployStackSet(deployment, { direct: true })).resolves.toEqual()
   })
+  test('Returns when attempting a deployment without region set in prod environment', async () => {
+    jest.doMock('aws-sdk', () => {
+      return {
+        config: {
+          update: () => {},
+          region: ''
+        }
+      }
+    })
+    const { deployStackSet } = require('./deployStackSet.js')
+    expect.assertions(1)
+    return expect(deployStackSet(deployment, { environment: 'prod' })).resolves.toEqual()
+  })
   test('Returns when attempting a deployment with region set', async () => {
     jest.doMock('aws-sdk', () => {
       return {
