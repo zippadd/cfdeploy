@@ -34,8 +34,6 @@ const createOrUpdateStackSet = async (stackSetName, templateURL, parameters = ''
     const { OperationId } = await cloudformation.updateStackSet(stackSetParams).promise()
     await waitForStackSetOperationsComplete(stackSetName, [OperationId])
   } catch (err) {
-    console.log('Hello')
-    console.log(err)
     if (err.code !== 'StackSetNotFoundException') {
       throw err
     }

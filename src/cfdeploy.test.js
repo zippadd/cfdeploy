@@ -40,7 +40,7 @@ describe('Test cfdeploy main', () => {
     })
     const { cfdeploy } = require('./cfdeploy.js')
     expect.assertions(1)
-    return expect(cfdeploy()).resolves.toEqual()
+    return expect(cfdeploy()).resolves.toEqual([{ status: 'fulfilled' }])
   })
   test('Returns a resolved promise when deployments are complete with a file path specified', async () => {
     jest.doMock('./stackSet/deployStackSet', () => {
@@ -52,7 +52,7 @@ describe('Test cfdeploy main', () => {
     process.argv.push('alternateName.yml ')
     const { cfdeploy } = require('./cfdeploy.js')
     expect.assertions(1)
-    return expect(cfdeploy()).resolves.toEqual()
+    return expect(cfdeploy()).resolves.toEqual([{ status: 'fulfilled' }])
   })
   test('Returns a resolved promise when deployments are complete without a file path specified in direct mode', async () => {
     jest.doMock('./stackSet/deployStackSet', () => {
@@ -63,7 +63,7 @@ describe('Test cfdeploy main', () => {
     process.argv.push('--direct')
     const { cfdeploy } = require('./cfdeploy.js')
     expect.assertions(1)
-    return expect(cfdeploy()).resolves.toEqual()
+    return expect(cfdeploy()).resolves.toEqual([{ status: 'fulfilled' }])
   })
   test('Returns a resolved promise when deployments are complete without a file path specified with environment specified', async () => {
     jest.doMock('./stackSet/deployStackSet', () => {
@@ -75,12 +75,23 @@ describe('Test cfdeploy main', () => {
     process.argv.push('prod')
     const { cfdeploy } = require('./cfdeploy.js')
     expect.assertions(1)
-    return expect(cfdeploy()).resolves.toEqual()
+    return expect(cfdeploy()).resolves.toEqual([{ status: 'fulfilled' }])
   })
-  test('Returns a rejected promise when a deployment fails', async () => {
+  test('Returns a resolved promise with a failed status when a deployment fails', async () => {
+    const deploymentError = new Error('Deployment error!')
     jest.doMock('./stackSet/deployStackSet', () => {
       return {
-        deployStackSet: async () => { throw new Error('Deployment error!') }
+        deployStackSet: async () => { throw deploymentError }
+      }
+    })
+    const { cfdeploy } = require('./cfdeploy.js')
+    expect.assertions(1)
+    return expect(cfdeploy()).resolves.toEqual([{ status: 'rejected', reason: deploymentError }])
+  })
+  test('Returns a resolved promise with a failed status when a deployment fails', async () => {
+    jest.doMock('./utilities/getSettings', () => {
+      return {
+        getSettings: async () => { throw new Error('Unknown error') }
       }
     })
     const { cfdeploy } = require('./cfdeploy.js')

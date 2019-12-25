@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.0] - 2019-12-24
 ### Added
 - Added environment support
+- More verbose logging
+### Changed
+- Update aws-sdk-mock to 5.0.0
+- Failures no longer cause an immediate exit, but wait for all statuses to be reported
 
 ## [2.0.1] - 2019-12-21
 ### Added

@@ -35,6 +35,9 @@ cfdeploy <options>
 | -d, --direct                        | Skip artifact processing and directly use<br>the base template body vs uploading to S3             | Normal Behavior      |
 | -e, --environment <environmentName> | Passes environment in an Environment parameter<br>to the stack(set) and appends to stack(set) name | No environment       |
 
+Exit code 0 is returned on success of all deployments.
+Exit code 1 is returned on 1+ deployment failures.
+
 # CFDeploy File Structure and Notes
 * Languages
   * Only YAML is supported. 
