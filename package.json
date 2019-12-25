@@ -1,6 +1,6 @@
 {
   "name": "cfdeployer",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Node.js command line for deploying Cloudformation templates",
   "bin": {
     "cfdeploy": "bin/cfdeploy"
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/zippadd/cfdeploy#readme",
   "devDependencies": {
-    "aws-sdk-mock": "^4.5.0",
+    "aws-sdk-mock": "^5.0.0",
     "codecov": "^3.6.1",
     "jest": "^24.9.0",
     "lodash.clonedeep": "^4.5.0",
@@ -39,9 +39,10 @@
   },
   "dependencies": {
     "archiver": "^3.1.1",
-    "aws-sdk": "^2.585.0",
+    "aws-sdk": "^2.596.0",
     "commander": "^4.0.1",
     "fs-extra": "^8.1.0",
-    "js-yaml": "^3.13.1"
+    "js-yaml": "^3.13.1",
+    "promise.allsettled": "^1.0.2"
   }
 }
