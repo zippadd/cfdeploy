@@ -10,8 +10,7 @@ const tagClasses = getTagClasses()
 
 const stackSetName = 'test-stacksets'
 const stackSetBucket = `${stackSetName}-admin`
-const bucketName = `${stackSetName}-\${AWS::Region}-\${AWS::AccountId}`
-const bucketSub = new tagClasses.Sub('!Sub', bucketName)
+const defaultBucketName = `${stackSetName}-\${AWS::Region}-\${AWS::AccountId}`
 
 const blake2Support = crypto.getHashes().includes('blake2s256')
 
@@ -40,7 +39,8 @@ const exampleLambdaHash2 = blake2Support
   ? '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
   : 'b47b7a276a69c6b81e0ade141fc2e3f42925d0c26eaba1742600623f134e196f'
 
-const getTemplateObject = (prefix) => {
+const getTemplateObject = (prefix, bucketName = defaultBucketName) => {
+  const bucketSub = new tagClasses.Sub('!Sub', bucketName)
   return {
     AWSTemplateFormatVersion: '2010-09-09',
     Description: 'Test Stack Sets',
@@ -68,17 +68,8 @@ const getTemplateObject = (prefix) => {
             'arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess'
           ],
           RoleName: new tagClasses.Join(
-            '!Join',
-            [
-              '-',
-              [
-                'test-stack-sets-lambda-role',
-                new tagClasses.Ref(
-                  '!Ref',
-                  'AWS::Region'
-                )
-              ]
-            ]
+            '!Sub',
+            'test-stack-sets-lambda-role-${AWS::Region}' // eslint-disable-line no-template-curly-in-string
           )
         },
         Type: 'AWS::IAM::Role'
@@ -214,7 +205,8 @@ const getTemplateObject = (prefix) => {
     }
   }
 }
-const getNestedTemplateObject = (prefix) => {
+const getNestedTemplateObject = (prefix, bucketName = defaultBucketName) => {
+  const bucketSub = new tagClasses.Sub('!Sub', bucketName)
   return {
     AWSTemplateFormatVersion: '2010-09-09',
     Description: 'Test Stack Sets Nested',
@@ -555,6 +547,25 @@ describe('Artifact Upload', () => {
           doc: getNestedTemplateObject(prefix)
         },
         doc: getTemplateObject(prefix)
+      }
+    })
+    return result
+  })
+  test('Complete artifact upload with environment', async () => {
+    const { artifactUpload } = require('./artifactUpload.js')
+    expect.assertions(1)
+    const templatePath = 'template.yml'
+    const environment = 'prod'
+    const stackSetBucketEnv = `${stackSetBucket}-${environment}`
+    const bucketName = `${defaultBucketName}-\${Environment}`
+    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets, environment)).resolves.toEqual({
+      url: `https://${stackSetBucketEnv}.s3.amazonaws.com/${templatePath}`,
+      s3URL: `s3://${stackSetBucketEnv}/${templatePath}`,
+      yamlDocMap: {
+        _dummynestedstack: {
+          doc: getNestedTemplateObject('', bucketName)
+        },
+        doc: getTemplateObject('', bucketName)
       }
     })
     return result

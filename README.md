@@ -29,14 +29,16 @@ npm install -g cfdeployer
 cfdeploy <options>
 ```
 
-| Option                              | Description                                                                                        | Default (if omitted) |
-|-------------------------------------|----------------------------------------------------------------------------------------------------|----------------------|
-| -f, --file <filePath>               | Path to the cfdeploy file                                                                          | cfdeploy.yml         |
-| -d, --direct                        | Skip artifact processing and directly use<br>the base template body vs uploading to S3             | Normal Behavior      |
-| -e, --environment <environmentName> | Passes environment in an Environment parameter<br>to the stack(set) and appends to stack(set) name | No environment       |
+| Option                              | Description                                                                                        | Default (if omitted)   |
+|-------------------------------------|----------------------------------------------------------------------------------------------------|------------------------|
+| -f, --file <filePath>               | Path to the cfdeploy file                                                                          | cfdeploy.yml           |
+| -d, --direct                        | Skip artifact processing and directly use<br>the base template body vs uploading to S3             | Artifacts are uploaded |
+| -e, --environment <environmentName> | Passes environment in an Environment parameter<br>to the stack(set) and appends to stack(set) name | No environment         |
 
-Exit code 0 is returned on success of all deployments.
-Exit code 1 is returned on 1+ deployment failures.
+| Exit Code | Description                  |
+|-----------|------------------------------|
+| 0         | All deployments successful   |
+| 1         | 1 or more deployments failed |
 
 # CFDeploy File Structure and Notes
 * Languages
@@ -45,7 +47,8 @@ Exit code 1 is returned on 1+ deployment failures.
   * cfdeploy.yml, placed in the root (like e.g. .travis.yml) for easiest use and recognition
   * Can be named anything and placed wherever, but must specify file option (see above)
 * S3 bucket base just specifies the base. The full bucket name is as follows:
-  * ```<s3 bucket base>-<region>-<AWS account number>
+  * No environment provided: <s3 bucket base>-<region>-<AWS account number>
+  * Environment provided: <s3 bucket base>-<region>-<AWS account number>-<environment>
 * Cloudformation Template Restrictions
   * Template must be YAML
 
@@ -55,7 +58,7 @@ deployments:
     type: stackSet
     name: <name of stackset/deployment>
     templatePath: <path to Cloudformation template>
-    adminS3Bucket: <S3 bucket name for the administrator account. The base template is placed here>
+    adminS3Bucket: <S3 bucket name for the administrator account. The base template is placed here. -[environment] is appended if an environment is provided>
     adminS3Prefix: <S3 prefix (with or without trailing slash) in the adminS3Bucket where the uploaded base template is placed. e.g. thisIs/aPrefix/>
     targetsS3BucketBase: <S3 bucket base used to create the full bucket names where the base template artifacts are uploaded to>
     targetsS3Prefix: <S3 prefix (with or without trailing slash) in the targets S3 Buckets where the template artifacts are placed. e.g. thisIs/aPrefix/ >

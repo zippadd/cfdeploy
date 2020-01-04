@@ -37,7 +37,7 @@ const deployStackSet = async (deployment, opts) => {
   if (direct) {
     templateURL = templatePath
   } else {
-    const { url } = await artifactUpload(templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets)
+    const { url } = await artifactUpload(templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets, environment)
     templateURL = url
   }
 

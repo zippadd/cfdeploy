@@ -15,7 +15,7 @@ Resources:
                 - "lambda.amazonaws.com"
             Action:
               - "sts:AssumeRole"
-      RoleName: !Join [ "-", [test-stack-sets-lambda-role, !Ref "AWS::Region"]]
+      RoleName: !Sub "test-stack-sets-lambda-role-${AWS::Region}"
       ManagedPolicyArns:
       - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       - "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
