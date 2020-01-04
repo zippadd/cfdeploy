@@ -33,6 +33,7 @@ const getCloudformationYAMLSchema = () => {
     { tag: '!Join', kind: 'sequence' },
     { tag: '!Select', kind: 'sequence' },
     { tag: '!Split', kind: 'sequence' },
+    { tag: '!Sub', kind: 'sequence' },
     { tag: '!Sub', kind: 'scalar' },
     { tag: '!Transform', kind: 'mapping' },
     { tag: '!Ref', kind: 'scalar' }

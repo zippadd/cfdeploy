@@ -7,12 +7,12 @@ const { uploadS3, modes } = require('../utilities/uploadS3.js')
 const { getCloudformationYAMLSchema, getTagClasses } = require('../utilities/getCloudformationYAMLSchema.js')
 // const { getAWSCurrentAccountId, getAWSCurrentOrDefaultRegion } = require('../utilities/awsUtils.js')
 
-const uploadToS3Targets = async (targets, localPath, s3BucketBase, s3Prefix, options) => {
+const uploadToS3Targets = async (targets, localPath, s3BucketBase, s3Prefix, environment, options) => {
   const s3UploadPromises = []
 
   for (const targetAccount of Object.keys(targets)) {
     for (const targetRegion of Object.keys(targets[targetAccount])) {
-      const s3Bucket = `${s3BucketBase}-${targetRegion}-${targetAccount}`
+      const s3Bucket = `${s3BucketBase}-${targetRegion}-${targetAccount}${environment ? `-${environment}` : ''}`
       s3UploadPromises.push(uploadS3(localPath, s3Bucket, s3Prefix, options))
     }
   }
@@ -21,7 +21,7 @@ const uploadToS3Targets = async (targets, localPath, s3BucketBase, s3Prefix, opt
 
   // Exmaple: !Sub "arn:${AWS::Partition}:appsync:${AWS::Region}:${AWS::AccountId}:apis/*"
   const tagClasses = getTagClasses()
-  const genericBucketName = `${s3BucketBase}-\${AWS::Region}-\${AWS::AccountId}`
+  const genericBucketName = `${s3BucketBase}-\${AWS::Region}-\${AWS::AccountId}${environment ? '-${Environment}' : ''}` // eslint-disable-line no-template-curly-in-string
   const genericBucket = new tagClasses.Sub('!Sub', genericBucketName)
   const genericS3URL = new tagClasses.Sub('!Sub', s3URL.replace(bucket, genericBucketName))
   const genericURL = new tagClasses.Sub('!Sub', url.replace(bucket, genericBucketName))
@@ -29,7 +29,7 @@ const uploadToS3Targets = async (targets, localPath, s3BucketBase, s3Prefix, opt
   return { url: genericURL, s3URL: genericS3URL, bucket: genericBucket, key }
 }
 
-const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, targets, yamlDocMap) => {
+const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, targets, environment, yamlDocMap) => {
   const { Type, Properties } = resource
 
   if (!Type || !Properties) {
@@ -55,7 +55,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
         break
       }
 
-      const { bucket, key } = await uploadToS3Targets(targets, BodyS3Location, s3BucketBase, s3CalcPrefix, {
+      const { bucket, key } = await uploadToS3Targets(targets, BodyS3Location, s3BucketBase, s3CalcPrefix, environment, {
         hashVersioning: true
       })
 
@@ -77,7 +77,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
         break
       }
 
-      const { bucket, key } = await uploadToS3Targets(targets, Code, s3BucketBase, s3CalcPrefix, {
+      const { bucket, key } = await uploadToS3Targets(targets, Code, s3BucketBase, s3CalcPrefix, environment, {
         mode: modes.archive,
         hashVersioning: true
       })
@@ -100,7 +100,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
         break
       }
 
-      const { s3URL } = await uploadToS3Targets(targets, DefinitionS3Location, s3BucketBase, s3CalcPrefix, {
+      const { s3URL } = await uploadToS3Targets(targets, DefinitionS3Location, s3BucketBase, s3CalcPrefix, environment, {
         hashVersioning: true
       })
 
@@ -111,7 +111,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
       const { RequestMappingTemplateS3Location, ResponseMappingTemplateS3Location } = Properties
 
       if (RequestMappingTemplateS3Location && !isS3URL(RequestMappingTemplateS3Location)) {
-        const { s3URL } = await uploadToS3Targets(targets, RequestMappingTemplateS3Location, s3BucketBase, s3CalcPrefix, {
+        const { s3URL } = await uploadToS3Targets(targets, RequestMappingTemplateS3Location, s3BucketBase, s3CalcPrefix, environment, {
           hashVersioning: true
         })
 
@@ -119,7 +119,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
       }
 
       if (ResponseMappingTemplateS3Location && !isS3URL(ResponseMappingTemplateS3Location)) {
-        const { s3URL } = await uploadToS3Targets(targets, ResponseMappingTemplateS3Location, s3BucketBase, s3CalcPrefix, {
+        const { s3URL } = await uploadToS3Targets(targets, ResponseMappingTemplateS3Location, s3BucketBase, s3CalcPrefix, environment, {
           hashVersioning: true
         })
 
@@ -150,7 +150,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
         break
       }
 
-      const { bucket, key } = await uploadToS3Targets(targets, SourceBundle, s3BucketBase, s3CalcPrefix, {
+      const { bucket, key } = await uploadToS3Targets(targets, SourceBundle, s3BucketBase, s3CalcPrefix, environment, {
         mode: modes.archive,
         hashVersioning: true
       })
@@ -174,7 +174,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
 
       const resourceFormatted = `_${resourceName.toLocaleLowerCase()}`
       const s3PrefixExtended = s3Prefix ? `${s3Prefix}/${resourceFormatted}` : resourceFormatted
-      const { url, yamlDocMap: receivedMap } = await processArtifactUpload(TemplateURL, s3BucketBase, s3PrefixExtended, targets)
+      const { url, yamlDocMap: receivedMap } = await processArtifactUpload(TemplateURL, s3BucketBase, s3PrefixExtended, targets, environment)
 
       yamlDocMap[resourceFormatted] = receivedMap
 
@@ -188,7 +188,7 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
         break
       }
 
-      const { s3URL } = await uploadToS3Targets(targets, ScriptLocation, s3BucketBase, s3CalcPrefix, {
+      const { s3URL } = await uploadToS3Targets(targets, ScriptLocation, s3BucketBase, s3CalcPrefix, environment, {
         hashVersioning: true
       })
 
@@ -200,17 +200,17 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
   }
 }
 
-const processResources = async (resources, s3BucketBase, s3Prefix, targets, yamlDocMap) => {
+const processResources = async (resources, s3BucketBase, s3Prefix, targets, environment, yamlDocMap) => {
   const resourceProcessingPromises = []
 
   for (const resource of Object.keys(resources)) {
-    resourceProcessingPromises.push(processResource(resources[resource], resource, s3BucketBase, s3Prefix, targets, yamlDocMap))
+    resourceProcessingPromises.push(processResource(resources[resource], resource, s3BucketBase, s3Prefix, targets, environment, yamlDocMap))
   }
 
   return Promise.all(resourceProcessingPromises)
 }
 
-const processArtifactUpload = async (templatePath, s3BucketBase, s3Prefix, targets) => {
+const processArtifactUpload = async (templatePath, s3BucketBase, s3Prefix, targets, environment) => {
   const absFilePath = path.isAbsolute(templatePath) ? templatePath : path.join(process.cwd(), templatePath)
   const file = await fs.readFile(absFilePath, 'utf-8')
   const cfSchema = getCloudformationYAMLSchema()
@@ -223,21 +223,22 @@ const processArtifactUpload = async (templatePath, s3BucketBase, s3Prefix, targe
     throw new Error('Error parsing the template file YAML')
   }
 
-  await processResources(yamlDoc.Resources, s3BucketBase, s3Prefix, targets, yamlDocMap)
+  await processResources(yamlDoc.Resources, s3BucketBase, s3Prefix, targets, environment, yamlDocMap)
 
   const yamlFile = yaml.dump(yamlDoc, { schema: cfSchema })
   const yamlFilePath = path.join(os.tmpdir(), path.basename(templatePath))
   await fs.writeFile(yamlFilePath, yamlFile)
-  const { url, s3URL } = await uploadToS3Targets(targets, yamlFilePath, s3BucketBase, s3Prefix)
+  const { url, s3URL } = await uploadToS3Targets(targets, yamlFilePath, s3BucketBase, s3Prefix, environment)
 
   yamlDocMap.doc = yamlDoc
 
   return { url, s3URL, yamlDocMap, yamlFilePath }
 }
 
-const artifactUpload = async (templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets) => {
-  const { yamlDocMap, yamlFilePath } = await processArtifactUpload(templatePath, targetsS3BucketBase, targetsS3Prefix, targets)
-  const { url, s3URL } = await uploadS3(yamlFilePath, adminS3Bucket, adminS3Prefix)
+const artifactUpload = async (templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets, environment) => {
+  const adminS3BucketName = environment ? `${adminS3Bucket}-${environment}` : adminS3Bucket
+  const { yamlDocMap, yamlFilePath } = await processArtifactUpload(templatePath, targetsS3BucketBase, targetsS3Prefix, targets, environment)
+  const { url, s3URL } = await uploadS3(yamlFilePath, adminS3BucketName, adminS3Prefix)
   return { url, s3URL, yamlDocMap }
 }
 

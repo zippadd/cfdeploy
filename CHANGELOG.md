@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2020-01-04
+### Added
+- Support for alternate Sub format in Cloudformation templates
+### Changed
+- Environment support now applies to artifact uploads as well
+- Updated documentation
+
 ## [2.1.0] - 2019-12-24
 ### Added
 - Added environment support
