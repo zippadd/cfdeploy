@@ -5,9 +5,9 @@
 [![devDependencies Status](https://david-dm.org/zippadd/cfdeploy/dev-status.svg)](https://david-dm.org/zippadd/cfdeploy?type=dev)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-Node.js module for deploying Cloudformation templates.
+Node.js command line tool for deploying Cloudformation templates.
 
-Currently only supports stacksets as this seemed to be a general gap in the community, but may be extended in the future.
+Only supports deployment into StackSets as this seemed to be a general gap in the community, but may be extended in the future to include regular Stacks.
 
 ## Stacksets
 Uploads the referenced Cloudformation in the cfdeploy file to the given bucket and creates/updates the stack set per the given name.
@@ -18,6 +18,8 @@ The stack set itself is created in the account that it is being run under in the
 
 # Requirements
 * NodeJS 10+
+* Linux/UNIX
+* R/W access to /tmp and template locations
 
 # Installation
 ```bash
