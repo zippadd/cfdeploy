@@ -38,8 +38,29 @@ const exampleGlueJobHash = blake2Support
 const exampleLambdaHash2 = blake2Support
   ? '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
   : 'b47b7a276a69c6b81e0ade141fc2e3f42925d0c26eaba1742600623f134e196f'
+const exampleTemplateHash = blake2Support
+  ? '6d9ab99746f0a50803a5aba7e4663fcbe0d3be1128b0f80427dd2c312ea8d73e'
+  : '0f65e6c79dea567ef52613658e86567b7ddb56b0723fe5fd15c9f237509ea7a2'
+const exampleTemplateNestedHash = blake2Support
+  ? '77e227c5f68223e9969d09c1c873bfff3a7fee9b7b550475969e03dc19c8aeeb'
+  : 'd6b309294d940aec716d61e4442dbddc92aea3f2ca4d1ca44bbdb345e250e5a0'
+const examplePrefixedTemplateHash = blake2Support
+  ? 'bc04504a69bdcd82540983d32efa4bf3f2454539e0e243854a680d03173545e7'
+  : 'acb16f9d79a3961c1ee33dd308342a43cb169dd329b33ee87dd7d03a52887be4'
+const examplePrefixedTemplateNestedHash = blake2Support
+  ? 'bc09beb08c379217a922df992a0f209d6a0224d68d9377171e56511c90cb2da9'
+  : '144fea9afe0c55305b58e22622a2fc634f361259d27f127a695e97358636a2ba'
+const exampleEnvTemplateHash = blake2Support
+  ? 'df27b01dbbeb108ef5f039d4eb6f245e5b57debc7bf5ad740188b3412abdb659'
+  : '0a55bb450850a24c8050ace46871f63934fbde21ec6db9ee991298fbe83c440b'
+const exampleEnvTemplateNestedHash = blake2Support
+  ? 'f96b6db255682c9a733d317ac37d1667c55cde12f43bfd920fdf4b50e2794fda'
+  : '5ade3f8969d093fd12fc47a16b8aafd7ce3c1064f15933dcb290a0217f1029a5'
+const exampleSkippedTemplateHash = blake2Support
+  ? '17aa37f315111fdea76f51933e37c12093e3f1cb9bed1b9fce78cdd56479960c'
+  : 'd4ce4472a20370908b1307a4b640d8a0e6946ed4423b8b622d64229fda04c7bb'
 
-const getTemplateObject = (prefix, bucketName = defaultBucketName) => {
+const getTemplateObject = (prefix, bucketName = defaultBucketName, nestedTemplateHash) => {
   const bucketSub = new tagClasses.Sub('!Sub', bucketName)
   return {
     AWSTemplateFormatVersion: '2010-09-09',
@@ -164,7 +185,7 @@ const getTemplateObject = (prefix, bucketName = defaultBucketName) => {
       },
       DummyNestedStack: {
         Properties: {
-          TemplateURL: new tagClasses.Sub('!Sub', `https://${bucketName}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}_dummynestedstack/template2.yml`)
+          TemplateURL: new tagClasses.Sub('!Sub', `https://${bucketName}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}_dummynestedstack/template2.yml/${nestedTemplateHash}/template2.yml`)
         },
         Type: 'AWS::CloudFormation::Stack'
       },
@@ -504,15 +525,16 @@ describe('Artifact Upload', () => {
   test('Complete artifact upload', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
-    const templatePath = 'template.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
-      url: `https://${stackSetBucket}.s3.amazonaws.com/${templatePath}`,
-      s3URL: `s3://${stackSetBucket}/${templatePath}`,
+    const templateName = 'template.yml'
+    const templateS3Path = `${templateName}/${exampleTemplateHash}/${templateName}`
+    const result = await expect(artifactUpload(templateName, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templateS3Path}`,
+      s3URL: `s3://${stackSetBucket}/${templateS3Path}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject()
         },
-        doc: getTemplateObject()
+        doc: getTemplateObject('', defaultBucketName, exampleTemplateNestedHash)
       }
     })
     return result
@@ -521,15 +543,16 @@ describe('Artifact Upload', () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
     const templateName = 'template.yml'
+    const templateS3Path = `${templateName}/${exampleTemplateHash}/${templateName}`
     const templatePath = path.join(process.cwd(), templateName)
     const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
-      url: `https://${stackSetBucket}.s3.amazonaws.com/${templateName}`,
-      s3URL: `s3://${stackSetBucket}/${templateName}`,
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templateS3Path}`,
+      s3URL: `s3://${stackSetBucket}/${templateS3Path}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject()
         },
-        doc: getTemplateObject()
+        doc: getTemplateObject('', defaultBucketName, exampleTemplateNestedHash)
       }
     })
     return result
@@ -537,16 +560,17 @@ describe('Artifact Upload', () => {
   test('Complete artifact upload with prefix', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
-    const templatePath = 'template.yml'
+    const templateName = 'template.yml'
     const prefix = 'prefixed'
-    const result = await expect(artifactUpload(templatePath, stackSetBucket, prefix, stackSetName, prefix, targets)).resolves.toEqual({
-      url: `https://${stackSetBucket}.s3.amazonaws.com/${prefix ? `${prefix}/` : ''}${templatePath}`,
-      s3URL: `s3://${stackSetBucket}/${prefix ? `${prefix}/` : ''}${templatePath}`,
+    const templateS3Path = `${prefix}/${templateName}/${examplePrefixedTemplateHash}/${templateName}`
+    const result = await expect(artifactUpload(templateName, stackSetBucket, prefix, stackSetName, prefix, targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templateS3Path}`,
+      s3URL: `s3://${stackSetBucket}/${templateS3Path}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject(prefix)
         },
-        doc: getTemplateObject(prefix)
+        doc: getTemplateObject(prefix, defaultBucketName, examplePrefixedTemplateNestedHash)
       }
     })
     return result
@@ -554,18 +578,19 @@ describe('Artifact Upload', () => {
   test('Complete artifact upload with environment', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
-    const templatePath = 'template.yml'
+    const templateName = 'template.yml'
+    const templateS3Path = `${templateName}/${exampleEnvTemplateHash}/${templateName}`
     const environment = 'prod'
     const stackSetBucketEnv = `${stackSetBucket}-${environment}`
     const bucketName = `${defaultBucketName}-\${Environment}`
-    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets, environment)).resolves.toEqual({
-      url: `https://${stackSetBucketEnv}.s3.amazonaws.com/${templatePath}`,
-      s3URL: `s3://${stackSetBucketEnv}/${templatePath}`,
+    const result = await expect(artifactUpload(templateName, stackSetBucket, '', stackSetName, '', targets, environment)).resolves.toEqual({
+      url: `https://${stackSetBucketEnv}.s3.amazonaws.com/${templateS3Path}`,
+      s3URL: `s3://${stackSetBucketEnv}/${templateS3Path}`,
       yamlDocMap: {
         _dummynestedstack: {
           doc: getNestedTemplateObject('', bucketName)
         },
-        doc: getTemplateObject('', bucketName)
+        doc: getTemplateObject('', bucketName, exampleEnvTemplateNestedHash)
       }
     })
     return result
@@ -573,10 +598,11 @@ describe('Artifact Upload', () => {
   test('Skip all with an already processed or S3 referencing template', async () => {
     const { artifactUpload } = require('./artifactUpload.js')
     expect.assertions(1)
-    const templatePath = 'templateSkipAll.yml'
-    const result = await expect(artifactUpload(templatePath, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
-      url: `https://${stackSetBucket}.s3.amazonaws.com/${templatePath}`,
-      s3URL: `s3://${stackSetBucket}/${templatePath}`,
+    const templateName = 'templateSkipAll.yml'
+    const templateS3Path = `${templateName}/${exampleSkippedTemplateHash}/${templateName}`
+    const result = await expect(artifactUpload(templateName, stackSetBucket, '', stackSetName, '', targets)).resolves.toEqual({
+      url: `https://${stackSetBucket}.s3.amazonaws.com/${templateS3Path}`,
+      s3URL: `s3://${stackSetBucket}/${templateS3Path}`,
       yamlDocMap: {
         doc: getSkippedTemplateObject()
       }

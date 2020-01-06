@@ -174,7 +174,9 @@ const processResource = async (resource, resourceName, s3BucketBase, s3Prefix, t
 
       const resourceFormatted = `_${resourceName.toLocaleLowerCase()}`
       const s3PrefixExtended = s3Prefix ? `${s3Prefix}/${resourceFormatted}` : resourceFormatted
-      const { url, yamlDocMap: receivedMap } = await processArtifactUpload(TemplateURL, s3BucketBase, s3PrefixExtended, targets, environment)
+      const { url, yamlDocMap: receivedMap } = await processArtifactUpload(TemplateURL, s3BucketBase, s3PrefixExtended, targets, environment, {
+        hashVersioning: true
+      })
 
       yamlDocMap[resourceFormatted] = receivedMap
 
@@ -228,7 +230,7 @@ const processArtifactUpload = async (templatePath, s3BucketBase, s3Prefix, targe
   const yamlFile = yaml.dump(yamlDoc, { schema: cfSchema })
   const yamlFilePath = path.join(os.tmpdir(), path.basename(templatePath))
   await fs.writeFile(yamlFilePath, yamlFile)
-  const { url, s3URL } = await uploadToS3Targets(targets, yamlFilePath, s3BucketBase, s3Prefix, environment)
+  const { url, s3URL } = await uploadToS3Targets(targets, yamlFilePath, s3BucketBase, s3Prefix, environment, { hashVersioning: true })
 
   yamlDocMap.doc = yamlDoc
 
@@ -238,7 +240,7 @@ const processArtifactUpload = async (templatePath, s3BucketBase, s3Prefix, targe
 const artifactUpload = async (templatePath, adminS3Bucket, adminS3Prefix, targetsS3BucketBase, targetsS3Prefix, targets, environment) => {
   const adminS3BucketName = environment ? `${adminS3Bucket}-${environment}` : adminS3Bucket
   const { yamlDocMap, yamlFilePath } = await processArtifactUpload(templatePath, targetsS3BucketBase, targetsS3Prefix, targets, environment)
-  const { url, s3URL } = await uploadS3(yamlFilePath, adminS3BucketName, adminS3Prefix)
+  const { url, s3URL } = await uploadS3(yamlFilePath, adminS3BucketName, adminS3Prefix, { hashVersioning: true })
   return { url, s3URL, yamlDocMap }
 }
 
