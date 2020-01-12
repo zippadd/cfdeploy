@@ -1,6 +1,6 @@
 {
   "name": "cfdeployer",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Node.js command line for deploying Cloudformation templates",
   "bin": {
     "cfdeploy": "bin/cfdeploy"
@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "archiver": "^3.1.1",
-    "aws-sdk": "^2.597.0",
-    "commander": "^4.0.1",
+    "aws-sdk": "^2.601.0",
+    "commander": "^4.1.0",
     "fs-extra": "^8.1.0",
     "js-yaml": "^3.13.1",
     "promise.allsettled": "^1.0.2"
