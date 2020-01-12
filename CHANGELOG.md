@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.3] - 2020-01-11
+### Changed
+- Remove an extra logging line
+
 ## [2.2.2] - 2020-01-04
 ### Changed
 - Fixed template upload logic to use hash versioning per the documentation

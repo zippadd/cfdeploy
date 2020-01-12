@@ -57,8 +57,6 @@ const deployStackSet = async (deployment, opts) => {
 
   /* Check and make stack set instance adjustments if needed */
   await adjustInstances(name, targets)
-
-  console.log(`${name} deployment has completed.`)
 }
 
 module.exports = { deployStackSet }
