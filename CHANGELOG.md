@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.4] - 2020-01-26
+### Changed
+- Update to Jest 25
+
 ## [2.2.3] - 2020-01-11
 ### Changed
 - Remove an extra logging line

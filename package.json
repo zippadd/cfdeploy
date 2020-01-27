@@ -1,6 +1,6 @@
 {
   "name": "cfdeployer",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Node.js command line for deploying Cloudformation templates",
   "bin": {
     "cfdeploy": "bin/cfdeploy"
@@ -32,7 +32,7 @@
   "devDependencies": {
     "aws-sdk-mock": "^5.0.0",
     "codecov": "^3.6.1",
-    "jest": "^24.9.0",
+    "jest": "^25.0.0",
     "lodash.clonedeep": "^4.5.0",
     "standard": "^14.3.1",
     "uuid": "^3.3.3"
