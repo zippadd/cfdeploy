@@ -1,6 +1,6 @@
 {
   "name": "cfdeployer",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "Node.js command line for deploying Cloudformation templates",
   "bin": {
     "cfdeploy": "bin/cfdeploy"
@@ -35,7 +35,7 @@
     "jest": "^25.0.0",
     "lodash.clonedeep": "^4.5.0",
     "standard": "^14.3.1",
-    "uuid": "^3.4.0"
+    "uuid": "^7.0.0"
   },
   "dependencies": {
     "archiver": "^3.1.1",

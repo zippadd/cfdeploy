@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const AWS = require('aws-sdk-mock')
 const AWS_SDK = require('aws-sdk')
 const path = require('path')
