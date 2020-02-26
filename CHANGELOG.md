@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [2.2.6] - 2020-02-26
+### Added
+- Version badge
 ### Changed
 - Update uuid to 7
+- Travis token fix
 
 ## [2.2.5] - 2020-02-26
 ### Changed
