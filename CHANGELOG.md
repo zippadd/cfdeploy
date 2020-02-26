@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.5] - 2020-02-26
+### Changed
+- Update dependencies
+- Update Travis pipeline
+
 ## [2.2.4] - 2020-01-26
 ### Changed
 - Update to Jest 25
