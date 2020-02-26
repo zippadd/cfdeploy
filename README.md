@@ -1,5 +1,5 @@
 # CFDeployer
-![npm(https://img.shields.io/npm/v/cfdeployer)](https://www.npmjs.com/package/cfdeployer)
+[!(https://img.shields.io/npm/v/cfdeployer)](https://www.npmjs.com/package/cfdeployer)
 [![Build Status](https://travis-ci.com/zippadd/cfdeploy.svg?branch=master)](https://travis-ci.com/zippadd/cfdeploy)
 [![codecov](https://codecov.io/gh/zippadd/cfdeploy/branch/master/graph/badge.svg)](https://codecov.io/gh/zippadd/cfdeploy)
 [![dependencies Status](https://david-dm.org/zippadd/cfdeploy/status.svg)](https://david-dm.org/zippadd/cfdeploy)
