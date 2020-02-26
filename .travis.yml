@@ -19,8 +19,8 @@ jobs:
         cleanup: true
         provider: npm
         email: backend.services@zippadd.com
-        api_key:
-          secure: "ivxQGZpAnpr0X3Po9XgCPROujCCggelrawGCZPZEAIM3TzHq5ZEgAPRVOHBkuuM46XqmTLpjmCSn124SQXz5a6HEEJggPcazVsK3MF4BOZApWMKvKXg8CgzYo6zHhr1WvvK4/Gy62mwzDL2mIancu9oJ0h4HjaZDIQMPJFSFKU8MGV2HaKttpYDdTXoxIejxPLPF5UvwDUdhTe+RIlkTlONxY7b3XI2yyZknm4mNGXo1XGQDMNSSsDdnl3MeaPMxVB4jKu19SJWVSgbK2pxGg2Vd/kXTjPA/jJ0H9Fz8AdVx8eEicH728MaWOaXTB8/MFdMgQ/dAPGpS8Unqfe8MvLNodRevp6l5vmB/DPU6Spv9PJ2wmKMil39pt7zlOXiGzLyYhoE7kfnVPhwXRVEaTfn1TF4fgSpnuJFlhhpzzP3Aln47FgDeS4AvU/Nv9I+OYqqdsXoCjtN/rJzObjTTdwHZNQeqiNiCctdtpunEdXcjK3BYPNbvybP3j7USuP57kzveILcmmNIOHKUkX0M9OEq1GFEruh17edpxeanb/eek1KMg7aDGYzkCwa9ltD2vCa0k71XwgsXGFL08PgA02F/YdyiynCtWRHQR/jPvYYg5rEqvnmGt7OT8TS5vLD6Pys1v7pxocnpCCDzs/olPyYkUoVUSNLO9vbT8UtzPi6o="
+        api_token:
+          secure: "UC3AopwhEkxOrHI2rMtIKj0nTYW0+DN65aqzj/gFFVNl3d9q4Ug6ojI/ehVZk1F9+EdlxJ+dz9sI5OacMX83z7GsnXvswES3CqToSOQFf7h4vE2Bue0LY2TSmNejcjdFBnmwCODKPYxXxgEft7hFVd64GavjrBwBHn5lMudCEzrOV1eakNx0AytirLfowzB/lIIogifMxHhubVkjrCHXMZcGFSAbtOEZqP/BK5d/jOU3XhUQc25pECqelKWjqJK7q5NXQj4yqvnZ4pESUpf3AKxhB5AdM9/tDRwFLzmdK1swoMXYL/rj3qNgbKPtXE+Q1LDyHSEB99wPNFtgfcnkbTpEjnmklNAVScuyOOuVZ93Vu8RNs8QL5VY0vnSEEU/eASh8rbfxbOWIbktgft9BaXgNWljXh4i8xd5GjkUxsJO5cDfdEMtbM/yy48pUnNqOdZdp+jGDLWsjVElGdflOxD4z4xl1eo/gpEtW8Yq2kwj4+hV089tQATjWThAwQcVZqFdjSkXNYiv/jfknv47klVCRst1plsatCpX7+HXsLCnw37hWDF0lU94o5OmSXg4aR6w9CM9j8PrhxTpNz+KFcNcr2/B7npWR6BSRZiLQfOT4mno0+y2Td6NiK58ISwts48jOLU+fNVvER5n7MDazFe5mZXyuxPo5LQEyno45DZU="
         on:
           tags: true
           repo: zippadd/cfdeploy
