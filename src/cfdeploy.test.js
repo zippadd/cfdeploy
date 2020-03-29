@@ -49,7 +49,7 @@ describe('Test cfdeploy main', () => {
       }
     })
     process.argv.push('--file')
-    process.argv.push('alternateName.yml ')
+    process.argv.push('alternateName.yml')
     const { cfdeploy } = require('./cfdeploy.js')
     expect.assertions(1)
     return expect(cfdeploy()).resolves.toEqual([{ status: 'fulfilled' }])
