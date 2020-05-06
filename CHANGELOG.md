@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.9] - 2020-05-05
+### Changed
+- Major dependency updates: uuid => 8, jest => 26, archiver => 4
+- Updated other dependencies
+
+## [2.2.8] - 2020-03-28
+### Changed
+- Major dependency updates: commander => 5, fs-extra => 9
+- Updated other dependencies
+
+## [2.2.7] - 2020-03-28
+### Changed
+- Updated dependencies for security vulnerability
+
 ## [2.2.6] - 2020-02-26
 ### Added
 - Version badge
