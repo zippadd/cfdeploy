@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.10] - 2020-06-11
+### Changed
+- Update package lock
+
 ## [2.2.9] - 2020-05-05
 ### Changed
 - Major dependency updates: uuid => 8, jest => 26, archiver => 4
