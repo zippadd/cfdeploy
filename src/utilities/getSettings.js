@@ -8,7 +8,7 @@ const getSettings = async (filePath = 'cfdeploy.yml') => {
   const file = await fs.readFile(absFilePath, 'utf-8')
   let yamlDoc
   try {
-    yamlDoc = yaml.safeLoad(file)
+    yamlDoc = yaml.load(file)
   } catch (err) {
     if (err.message.includes('duplicated mapping key')) {
       throw new Error('Duplicate account ids specified in targets')

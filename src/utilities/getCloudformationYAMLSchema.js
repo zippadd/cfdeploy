@@ -58,7 +58,7 @@ const getCloudformationYAMLSchema = () => {
     yamlTypes.push(yamlType)
   }
 
-  _cloudformationYAMLSchema = yaml.Schema.create(yamlTypes)
+  _cloudformationYAMLSchema = new yaml.Schema(yamlTypes)
   return _cloudformationYAMLSchema
 }
 
