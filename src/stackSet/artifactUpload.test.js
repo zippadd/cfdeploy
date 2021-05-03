@@ -39,25 +39,25 @@ const exampleLambdaHash2 = blake2Support
   ? '45aefb65689642d2cb7f4bfcbc78f188e9a4caff20514fd0b3137cbc12ef7237'
   : 'b47b7a276a69c6b81e0ade141fc2e3f42925d0c26eaba1742600623f134e196f'
 const exampleTemplateHash = blake2Support
-  ? '6d9ab99746f0a50803a5aba7e4663fcbe0d3be1128b0f80427dd2c312ea8d73e'
+  ? 'aa199eee6c0c9ab1e628c5f8d44320e0d3f12034aa656fff275ee8ed6b7e8d9c'
   : '0f65e6c79dea567ef52613658e86567b7ddb56b0723fe5fd15c9f237509ea7a2'
 const exampleTemplateNestedHash = blake2Support
-  ? '77e227c5f68223e9969d09c1c873bfff3a7fee9b7b550475969e03dc19c8aeeb'
+  ? '522fc0b194cc827c7a3ab34c8c59a6266da1160cc9f4ab53b92d0eb43dc202cc'
   : 'd6b309294d940aec716d61e4442dbddc92aea3f2ca4d1ca44bbdb345e250e5a0'
 const examplePrefixedTemplateHash = blake2Support
-  ? 'bc04504a69bdcd82540983d32efa4bf3f2454539e0e243854a680d03173545e7'
+  ? '9941847b5bca49aa3d2b1cc7883d1e341f21f98cf412576128d1911d0a2e8089'
   : 'acb16f9d79a3961c1ee33dd308342a43cb169dd329b33ee87dd7d03a52887be4'
 const examplePrefixedTemplateNestedHash = blake2Support
-  ? 'bc09beb08c379217a922df992a0f209d6a0224d68d9377171e56511c90cb2da9'
+  ? '92984147dcdad95581fbeae8eaed50c6f7ef55e4b931379cb1409b236fcc4733'
   : '144fea9afe0c55305b58e22622a2fc634f361259d27f127a695e97358636a2ba'
 const exampleEnvTemplateHash = blake2Support
-  ? 'df27b01dbbeb108ef5f039d4eb6f245e5b57debc7bf5ad740188b3412abdb659'
+  ? 'c3a69663dc934ebec28b13d674a6d6b0a33bc002a943e14429cf7fdd5d5389cd'
   : '0a55bb450850a24c8050ace46871f63934fbde21ec6db9ee991298fbe83c440b'
 const exampleEnvTemplateNestedHash = blake2Support
-  ? 'f96b6db255682c9a733d317ac37d1667c55cde12f43bfd920fdf4b50e2794fda'
+  ? '505ea435f5b5d4f7eeb5df423c1a0e1e8efbbdeea0b4268d680209635237fea0'
   : '5ade3f8969d093fd12fc47a16b8aafd7ce3c1064f15933dcb290a0217f1029a5'
 const exampleSkippedTemplateHash = blake2Support
-  ? '17aa37f315111fdea76f51933e37c12093e3f1cb9bed1b9fce78cdd56479960c'
+  ? '7b79077896671fb7597fae312a068dcd9c92603b9acaa4415c0c5c5823937691'
   : 'd4ce4472a20370908b1307a4b640d8a0e6946ed4423b8b622d64229fda04c7bb'
 
 const getTemplateObject = (prefix, bucketName = defaultBucketName, nestedTemplateHash) => {
@@ -163,10 +163,10 @@ const getTemplateObject = (prefix, bucketName = defaultBucketName, nestedTemplat
           Description: 'Dummy function to test deployment',
           FunctionName: 'test-stack-sets-lambda',
           Handler: 'index.handler',
-          MemorySize: 128,
+          MemorySize: '128',
           Role: new tagClasses.GetAtt('!GetAtt', 'BasicExecRole.Arn'),
           Runtime: 'nodejs10.x',
-          Timeout: 10,
+          Timeout: '10',
           TracingConfig: {
             Mode: 'Active'
           }
@@ -279,10 +279,10 @@ const getNestedTemplateObject = (prefix, bucketName = defaultBucketName) => {
           Description: 'Dummy function to test deployment',
           FunctionName: 'test-stack-sets-lambda2',
           Handler: 'index.handler',
-          MemorySize: 128,
+          MemorySize: '128',
           Role: new tagClasses.GetAtt('!GetAtt', 'BasicExecRole.Arn'),
           Runtime: 'nodejs10.x',
-          Timeout: 10,
+          Timeout: '10',
           TracingConfig: {
             Mode: 'Active'
           }
@@ -414,10 +414,10 @@ const getSkippedTemplateObject = (prefix) => {
           Description: 'Dummy function to test deployment',
           FunctionName: 'test-stack-sets-lambda',
           Handler: 'index.handler',
-          MemorySize: 128,
+          MemorySize: '128',
           Role: new tagClasses.GetAtt('!GetAtt', 'BasicExecRole.Arn'),
           Runtime: 'nodejs10.x',
-          Timeout: 10,
+          Timeout: '10',
           TracingConfig: {
             Mode: 'Active'
           }
