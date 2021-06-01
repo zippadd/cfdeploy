@@ -10,7 +10,7 @@ jobs:
     - stage: test
       if: branch = master OR tag IS present
       install:
-        - npm install
+        - npm ci
       script:
         - npm test
     - stage: deploy

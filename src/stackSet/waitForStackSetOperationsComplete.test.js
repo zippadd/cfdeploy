@@ -56,7 +56,6 @@ describe('Wait for Stack Set Ops to Complete', () => {
     return result
   })
   test('Returns when the stack ops complete', async () => {
-    jest.setTimeout(30000)
     const operationId = uuidv4()
     const operationId2 = uuidv4()
     let pageWrap = false
@@ -87,7 +86,7 @@ describe('Wait for Stack Set Ops to Complete', () => {
     const result = await expect(waitForStackSetOperationsComplete(stackSetName, [operationId, operationId2])).resolves.toEqual()
     AWS.restore('CloudFormation', 'listStackSetOperations')
     return result
-  })
+  }, 30000)
   test('Returns error upon a failed operation', async () => {
     jest.setTimeout(30000)
     const operationId = uuidv4()

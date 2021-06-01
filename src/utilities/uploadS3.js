@@ -10,14 +10,14 @@ const modes = {
 }
 
 const normalizePathToS3 = (fsPath) => {
-  const multipleBckSlashRegex = new RegExp('\\+', 'g')
+  const multipleBckSlashRegex = /\\+/g
   return path.normalize(fsPath).replace(multipleBckSlashRegex, '/')
 }
 
 const normalizeS3Key = (s3Key) => {
-  const multipleFwdSlashRegex = new RegExp('/+', 'g')
-  const leadingFwdSlashRegex = new RegExp('^/+')
-  const trailingFwdSlashRegex = new RegExp('/+$')
+  const multipleFwdSlashRegex = /\/+/g
+  const leadingFwdSlashRegex = /^\/+/
+  const trailingFwdSlashRegex = /\/+$/
 
   return s3Key.replace(multipleFwdSlashRegex, '/').replace(leadingFwdSlashRegex, '').replace(trailingFwdSlashRegex, '')
 }
