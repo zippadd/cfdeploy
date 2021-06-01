@@ -7,7 +7,7 @@
   },
   "main": "src/cfdeploy.js",
   "scripts": {
-    "test": "cd test/sample && jest --coverage && codecov",
+    "test": "cd test/sample && standard && jest --coverage && codecov",
     "start": "$npm_package_bin_cfdeploy",
     "startSample": "$npm_package_bin_cfdeploy \"-f test/sample/cfdeploy.yml\""
   },
