@@ -7,7 +7,7 @@
   },
   "main": "src/cfdeploy.js",
   "scripts": {
-    "test": "cd test/sample && standard && jest --coverage && codecov",
+    "test": "cd test/sample && standard && jest && codecov",
     "start": "$npm_package_bin_cfdeploy",
     "startSample": "$npm_package_bin_cfdeploy \"-f test/sample/cfdeploy.yml\""
   },
@@ -32,7 +32,7 @@
   "devDependencies": {
     "aws-sdk-mock": "^5.2.2",
     "codecov": "^3.8.3",
-    "jest": "^27.0.6",
+    "jest": "^26.6.3",
     "lodash.clonedeep": "^4.5.0",
     "standard": "^16.0.3",
     "uuid": "^8.3.2"
@@ -46,6 +46,7 @@
     "promise.allsettled": "^1.0.4"
   },
   "jest": {
+    "collectCoverage": true,
     "coverageDirectory": "coverage"
   }
 }
