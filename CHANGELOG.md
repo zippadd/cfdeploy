@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.14] - 2021-05-31
+### Changed
+- Update major dependencies
+- Fix Jest timeout
+- Standard styling fixes
+
 ## [2.2.13] - 2021-05-02
 ### Changed
 - Update major dependencies

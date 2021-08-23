@@ -2,6 +2,7 @@ language: node_js
 os: linux
 node_js:
   - "node"
+  - "16"
   - "14"
   - "12"
   - "10"
@@ -10,7 +11,7 @@ jobs:
     - stage: test
       if: branch = master OR tag IS present
       install:
-        - npm install
+        - npm ci
       script:
         - npm test
     - stage: deploy
